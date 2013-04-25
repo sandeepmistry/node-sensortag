@@ -161,7 +161,7 @@ Notify/Unnotify:
 
     sensorTag.on('gyroscopeChange', callback(x, y, z));
 
-__Simple Key
+__Simple Key__
 
 Notify/Unnotify:
 
