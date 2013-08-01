@@ -11,12 +11,8 @@ SensorTag.discover(function(sensorTag) {
         sensorTag.connect(callback);
       },
       function(callback) {
-        console.log('discoverServices');
-        sensorTag.discoverServices(callback);
-      },
-      function(callback) {
-        console.log('discoverCharacteristics');
-        sensorTag.discoverCharacteristics(callback);
+        console.log('discoverServicesAndCharacteristics');
+        sensorTag.discoverServicesAndCharacteristics(callback);
       },
       function(callback) {
         console.log('readDeviceName');

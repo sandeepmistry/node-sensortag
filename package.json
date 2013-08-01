@@ -1,6 +1,6 @@
 {
   "name": "sensortag",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "node.js lib for the TI SensorTag",
   "main": "index.js",
   "scripts": {
@@ -19,7 +19,7 @@
   "readmeFilename": "README.md",
   "gitHead": "8079ce586d6853dd70ffbe24c9a2169d6818d23b",
   "dependencies": {
-    "noble": "~0.1.0"
+    "noble": "~0.1.2"
   },
   "devDependencies": {
     "async": "~0.2.7",

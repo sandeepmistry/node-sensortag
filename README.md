@@ -25,6 +25,10 @@ __Disconnect__
 
     sensorTag.disconnect(callback);
 
+__Discover Services and Characteristics__
+
+    sensorTag.discoverServicesAndCharacteristics(callback);
+
 __Device Info__
 
     sensorTag.readDeviceName(callback(deviceName));

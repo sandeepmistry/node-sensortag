@@ -99,41 +99,23 @@ SensorTag.prototype.disconnect = function(callback) {
   this._peripheral.disconnect(callback);
 };
 
-SensorTag.prototype.discoverServices = function(callback) {
-  this._peripheral.discoverServices([], function(error, services) {
+SensorTag.prototype.discoverServicesAndCharacteristics = function(callback) {
+  this._peripheral.discoverAllServicesAndCharacteristics(function(error, services, characteristics) {
     if (error === null) {
       for (var i in services) {
         var service = services[i];
         this._services[service.uuid] = service;
       }
-    }
 
-    callback();
-  }.bind(this));
-};
-
-SensorTag.prototype.discoverCharacteristics = function(callback) {
-  var numDiscovered = 0;
-
-  for (var i in this._services) {
-    var service = this._services[i];
-
-    service.discoverCharacteristics([], function(error, characteristics) {
-      numDiscovered++;
-
-      if (error === null) {
-        for (var j in characteristics) {
+      for (var j in characteristics) {
           var characteristic = characteristics[j];
 
           this._characteristics[characteristic.uuid] = characteristic;
         }
-      }
+    }
 
-      if (numDiscovered === Object.keys(this._services).length) {
-        callback();
-      }
-    }.bind(this));
-  }
+    callback();
+  }.bind(this));
 };
 
 SensorTag.prototype.writeCharacteristic = function(uuid, data, callback) {
