@@ -78,7 +78,7 @@ SensorTag.discover = function(callback) {
         callback(sensorTag);
       }
     };
-  if (noble.state == 'powerOn) {
+  if (noble.state == 'powerOn') {
       noble.on('discover', onDiscover);
       noble.startScanning();
   } else {
