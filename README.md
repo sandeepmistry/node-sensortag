@@ -15,7 +15,10 @@ Usage
 
 __Discover__
 
-    SensorTag.discover(callback(sensorTag));
+    SensorTag.discover(callback(sensorTag)[, uuid]);
+
+Optional SensorTag ```uuid``` to scan for, obtained from previous discover ```sensorTag.uuid```.
+The ```uuid``` per SensorTag may not be the same across machines. 
 
 __Connect__
 
