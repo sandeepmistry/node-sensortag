@@ -421,7 +421,13 @@ SensorTag.prototype.unnotifyBarometricPressure = function(callback) {
 };
 
 SensorTag.prototype.enableGyroscope = function(callback) {
-  this.enableConfigCharacteristic(GYROSCOPE_CONFIG_UUID, callback);
+  var enableCode = this.buildGyroscopeEnableCode(true, true, true);
+  this.writeCharacteristic(GYROSCOPE_CONFIG_UUID, new Buffer([enableCode]), callback);
+};
+
+SensorTag.prototype.enableGyroscopeAxis = function(enableXAxis, enableYAxis, enableZAxis, callback) {
+  var enableCode = this.buildGyroscopeEnableCode(enableXAxis, enableYAxis, enableZAxis);
+  this.writeCharacteristic(GYROSCOPE_CONFIG_UUID, new Buffer([enableCode]), callback);
 };
 
 SensorTag.prototype.disableGyroscope = function(callback) {
@@ -440,10 +446,20 @@ SensorTag.prototype.onGyroscopeChange = function(data) {
   }.bind(this));
 };
 
+SensorTag.prototype.buildGyroscopeEnableCode = function(enableXAxis, enableYAxis, enableZAxis) {
+  var enableCode = 0;
+
+  if (enableXAxis) { enableCode |= 0x01; }
+  if (enableYAxis) { enableCode |= 0x02; }
+  if (enableZAxis) { enableCode |= 0x04; }
+
+  return enableCode;
+};
+
 SensorTag.prototype.convertGyroscopeData = function(data, callback) {
-  var x = data.readInt16LE(0) * 500.0 / 65536.0;
-  var y = data.readInt16LE(2) * 500.0 / 65536.0;
-  var z = data.readInt16LE(4) * 500.0 / 65536.0;
+  var x = data.readInt16LE(0) * (500.0 / 65536.0) * -1;
+  var y = data.readInt16LE(2) * (500.0 / 65536.0);
+  var z = data.readInt16LE(4) * (500.0 / 65536.0);
 
   callback(x, y, z);
 };
