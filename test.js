@@ -5,6 +5,12 @@ var async = require('async');
 var SensorTag = require('./index');
 
 SensorTag.discover(function(sensorTag) {
+
+  sensorTag.on('disconnect', function() {
+    console.log('disconnected!');
+    process.exit(0);
+  });
+
   async.series([
       function(callback) {
         console.log('connect');
@@ -257,9 +263,6 @@ SensorTag.discover(function(sensorTag) {
         console.log('disconnect');
         sensorTag.disconnect(callback);
       }
-    ],
-    function() {
-      process.exit(0);
-    }
+    ]
   );
 });

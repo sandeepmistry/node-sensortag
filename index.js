@@ -63,6 +63,8 @@ function SensorTag(peripheral) {
   this._characteristics = {};
 
   this.uuid = peripheral.uuid;
+
+  this._peripheral.on('disconnect', this.onDisconnect.bind(this));
 }
 
 util.inherits(SensorTag, events.EventEmitter);
@@ -89,6 +91,9 @@ SensorTag.discover = function(callback, uuid) {
   }
 };
 
+SensorTag.prototype.onDisconnect = function() {
+  this.emit('disconnect');
+};
 
 SensorTag.prototype.toString = function() {
   return JSON.stringify({
