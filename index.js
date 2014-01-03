@@ -134,6 +134,16 @@ SensorTag.prototype.writeCharacteristic = function(uuid, data, callback) {
   this._characteristics[uuid].write(data, false, callback);
 };
 
+SensorTag.prototype.writePeriodCharacteristic = function(uuid, period, callback) {
+  if (period < 10) {
+    period = 10;
+  } else if (period > 255) {
+    period = 255;
+  }
+
+  this.writeCharacteristic(uuid, new Buffer([period]), callback);
+};
+
 SensorTag.prototype.notifyCharacteristic = function(uuid, notify, listener, callback) {
   var characteristic = this._characteristics[uuid];
 
@@ -299,16 +309,8 @@ SensorTag.prototype.unnotifyAccelerometer = function(callback) {
   this.notifyCharacteristic(ACCELEROMETER_DATA_UUID, false, this.onAccelerometerChange.bind(this), callback);
 };
 
-SensorTag.prototype.changeAccelerometerPeriod = function(data, callback) {
-  if (data >= 10 && data < 255) {
-    var hex_data;
-    if (data < 16) {
-      hex_data = ("0"+data).toString(16);
-    } else {
-      hex_data = (data).toString(16);
-    }
-    this.writeCharacteristic(ACCELEROMETER_PERIOD_UUID, new Buffer([hex_data]), function() {});
-  }
+SensorTag.prototype.changeAccelerometerPeriod = function(period, callback) {
+  this.writePeriodCharacteristic(ACCELEROMETER_PERIOD_UUID, period, callback);
 };
 
 SensorTag.prototype.enableHumidity = function(callback) {
@@ -382,16 +384,8 @@ SensorTag.prototype.unnotifyMagnetometer = function(callback) {
   this.notifyCharacteristic(MAGNETOMETER_DATA_UUID, false, this.onMagnetometerChange.bind(this), callback);
 };
 
-SensorTag.prototype.changeMagnetometerPeriod = function(data, callback) {
-  if (data >= 10 && data < 255) {
-    var hex_data;
-    if (data < 16) {
-      hex_data = ("0"+data).toString(16);
-    } else {
-      hex_data = (data).toString(16);
-    }
-    this.writeCharacteristic(MAGNETOMETER_PERIOD_UUID, new Buffer([hex_data]), function() {});
-  }
+SensorTag.prototype.changeMagnetometerPeriod = function(period, callback) {
+  this.writePeriodCharacteristic(MAGNETOMETER_PERIOD_UUID, period, callback);
 };
 
 SensorTag.prototype.enableBarometricPressure = function(callback) {
