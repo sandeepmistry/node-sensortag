@@ -70,11 +70,13 @@ Notify/Unnotify:
 
 __Accelerometer__
 
-Enable/disable:
+Enable/disable/configure:
 
     sensorTag.enableAccelerometer(callback);
 
     sensorTag.disableAccelerometer(callback);
+
+    sensorTag.setAccelerometerPeriod(period, callback); // period 1 - 2550 ms, default period is 2000 ms
 
 Read:
 
@@ -115,6 +117,8 @@ Enable/disable:
     sensorTag.enableMagnetometer(callback);
 
     sensorTag.disableMagnetometer(callback);
+
+    sensorTag.setMagnetometerPeriod(period, callback); // period 1 - 2550 ms, default period is 2000 ms
 
 Read:
 
