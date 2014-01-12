@@ -1,6 +1,6 @@
 {
   "name": "sensortag",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "node.js lib for the TI SensorTag",
   "main": "index.js",
   "scripts": {
