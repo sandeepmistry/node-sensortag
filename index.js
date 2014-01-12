@@ -135,6 +135,8 @@ SensorTag.prototype.writeCharacteristic = function(uuid, data, callback) {
 };
 
 SensorTag.prototype.writePeriodCharacteristic = function(uuid, period, callback) {
+  period /= 10; // input is scaled by units of 10ms
+
   if (period < 10) {
     period = 10;
   } else if (period > 255) {
@@ -309,7 +311,7 @@ SensorTag.prototype.unnotifyAccelerometer = function(callback) {
   this.notifyCharacteristic(ACCELEROMETER_DATA_UUID, false, this.onAccelerometerChange.bind(this), callback);
 };
 
-SensorTag.prototype.changeAccelerometerPeriod = function(period, callback) {
+SensorTag.prototype.setAccelerometerPeriod = function(period, callback) {
   this.writePeriodCharacteristic(ACCELEROMETER_PERIOD_UUID, period, callback);
 };
 
@@ -384,7 +386,7 @@ SensorTag.prototype.unnotifyMagnetometer = function(callback) {
   this.notifyCharacteristic(MAGNETOMETER_DATA_UUID, false, this.onMagnetometerChange.bind(this), callback);
 };
 
-SensorTag.prototype.changeMagnetometerPeriod = function(period, callback) {
+SensorTag.prototype.setMagnetometerPeriod = function(period, callback) {
   this.writePeriodCharacteristic(MAGNETOMETER_PERIOD_UUID, period, callback);
 };
 
