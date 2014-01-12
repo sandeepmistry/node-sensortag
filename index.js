@@ -41,12 +41,14 @@ var IR_TEMPERATURE_DATA_UUID                = 'f000aa0104514000b000000000000000'
 
 var ACCELEROMETER_CONFIG_UUID               = 'f000aa1204514000b000000000000000';
 var ACCELEROMETER_DATA_UUID                 = 'f000aa1104514000b000000000000000';
+var ACCELEROMETER_PERIOD_UUID               = 'f000aa1304514000b000000000000000';
 
 var HUMIDITY_CONFIG_UUID                    = 'f000aa2204514000b000000000000000';
 var HUMIDITY_DATA_UUID                      = 'f000aa2104514000b000000000000000';
 
 var MAGNETOMETER_CONFIG_UUID                = 'f000aa3204514000b000000000000000';
 var MAGNETOMETER_DATA_UUID                  = 'f000aa3104514000b000000000000000';
+var MAGNETOMETER_PERIOD_UUID                = 'f000aa3304514000b000000000000000';
 
 var BAROMETRIC_PRESSURE_CONFIG_UUID         = 'f000aa4204514000b000000000000000';
 var BAROMETRIC_PRESSURE_DATA_UUID           = 'f000aa4104514000b000000000000000';
@@ -130,6 +132,16 @@ SensorTag.prototype.discoverServicesAndCharacteristics = function(callback) {
 
 SensorTag.prototype.writeCharacteristic = function(uuid, data, callback) {
   this._characteristics[uuid].write(data, false, callback);
+};
+
+SensorTag.prototype.writePeriodCharacteristic = function(uuid, period, callback) {
+  if (period < 10) {
+    period = 10;
+  } else if (period > 255) {
+    period = 255;
+  }
+
+  this.writeCharacteristic(uuid, new Buffer([period]), callback);
 };
 
 SensorTag.prototype.notifyCharacteristic = function(uuid, notify, listener, callback) {
@@ -297,6 +309,10 @@ SensorTag.prototype.unnotifyAccelerometer = function(callback) {
   this.notifyCharacteristic(ACCELEROMETER_DATA_UUID, false, this.onAccelerometerChange.bind(this), callback);
 };
 
+SensorTag.prototype.changeAccelerometerPeriod = function(period, callback) {
+  this.writePeriodCharacteristic(ACCELEROMETER_PERIOD_UUID, period, callback);
+};
+
 SensorTag.prototype.enableHumidity = function(callback) {
   this.enableConfigCharacteristic(HUMIDITY_CONFIG_UUID, callback);
 };
@@ -366,6 +382,10 @@ SensorTag.prototype.notifyMagnetometer = function(callback) {
 
 SensorTag.prototype.unnotifyMagnetometer = function(callback) {
   this.notifyCharacteristic(MAGNETOMETER_DATA_UUID, false, this.onMagnetometerChange.bind(this), callback);
+};
+
+SensorTag.prototype.changeMagnetometerPeriod = function(period, callback) {
+  this.writePeriodCharacteristic(MAGNETOMETER_PERIOD_UUID, period, callback);
 };
 
 SensorTag.prototype.enableBarometricPressure = function(callback) {
