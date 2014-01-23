@@ -73,7 +73,7 @@ util.inherits(SensorTag, events.EventEmitter);
 
 SensorTag.discover = function(callback, uuid) {
   var onDiscover = function(peripheral) {
-    if (peripheral.advertisement.localName === 'SensorTag' &&
+    if (peripheral.advertisement.localName.match(/Sensor {0,1}Tag/) &&
         ( uuid === undefined || uuid === peripheral.uuid )) {
       noble.removeListener('discover', onDiscover);
       noble.stopScanning();
