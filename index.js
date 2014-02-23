@@ -72,25 +72,27 @@ function SensorTag(peripheral) {
 util.inherits(SensorTag, events.EventEmitter);
 
 SensorTag.discover = function(callback, uuid) {
-  var onDiscover = function(peripheral) {
-    if (peripheral.advertisement.localName === 'SensorTag' &&
-        ( uuid === undefined || uuid === peripheral.uuid )) {
-      noble.removeListener('discover', onDiscover);
-      noble.stopScanning();
-      var sensorTag = new SensorTag(peripheral);
-      callback(sensorTag);
+  var startScanningOnPowerOn = function() {
+    if (noble.state === 'poweredOn') {
+      var onDiscover = function(peripheral) {
+        if (peripheral.advertisement.localName === 'SensorTag' &&
+            (uuid === undefined || uuid === peripheral.uuid)) {
+          noble.removeListener('discover', onDiscover);
+          noble.stopScanning();
+          var sensorTag = new SensorTag(peripheral);
+          callback(sensorTag);
+        }
+      };
+
+      noble.on('discover', onDiscover);
+
+      noble.startScanning();
+    } else {
+      noble.once('stateChange', startScanningOnPowerOn);
     }
   };
 
-  if (noble.state == 'poweredOn') {
-      noble.on('discover', onDiscover);
-      noble.startScanning();
-  } else {
-    noble.once('stateChange', function() {
-      noble.on('discover', onDiscover);
-      noble.startScanning();
-    });
-  }
+  startScanningOnPowerOn();
 };
 
 SensorTag.prototype.onDisconnect = function() {
