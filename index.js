@@ -248,11 +248,13 @@ SensorTag.prototype.onIrTemperatureChange = function(data) {
 };
 
 SensorTag.prototype.convertIrTemperatureData = function(data, callback) {
+  // For computation refer :  http://processors.wiki.ti.com/index.php/SensorTag_User_Guide#IR_Temperature_Sensor
+  
   var ambientTemperature = data.readInt16LE(2) / 128.0;
 
   var Vobj2 = data.readInt16LE(0) * 0.00000015625;
   var Tdie2 = ambientTemperature + 273.15;
-  var S0 = 6.4 * Math.pow(10, -14);
+  var S0 = 5.593 * Math.pow(10, -14);
   var a1 = 1.75 * Math.pow(10 ,-3);
   var a2 = -1.678 * Math.pow(10, -5);
   var b0 = -2.94 * Math.pow(10, -5);
@@ -419,22 +421,32 @@ SensorTag.prototype.onBarometricPressureChange = function(data) {
 };
 
 SensorTag.prototype.convertBarometricPressureData = function(data, callback) {
-  var c1 = this._barometricPressureCalibrationData.readUInt16LE(0);
-  var c2 = this._barometricPressureCalibrationData.readUInt16LE(2);
-  var c3 = this._barometricPressureCalibrationData.readUInt16LE(4);
-  var c4 = this._barometricPressureCalibrationData.readUInt16LE(6);
 
-  var c5 = this._barometricPressureCalibrationData.readInt16LE(8);
-  var c6 = this._barometricPressureCalibrationData.readInt16LE(10);
-  var c7 = this._barometricPressureCalibrationData.readInt16LE(12);
-  var c8 = this._barometricPressureCalibrationData.readInt16LE(14);
+  // For computation refer :  http://processors.wiki.ti.com/index.php/SensorTag_User_Guide#Barometric_Pressure_Sensor_2
+  var temp;	// Temperature raw value from sensor
+  var pressure;	// Pressure raw value from sensor
+  //var t_a; 	// Temperature actual value in unit centi degrees celsius
+  var S;	// Interim value in calculation
+  var O;	// Interim value in calculation
+  var p_a; 	// Pressure actual value in unit Pascal.
 
+  var c0 = this._barometricPressureCalibrationData.readUInt16LE(0);
+  var c1 = this._barometricPressureCalibrationData.readUInt16LE(2);
+  var c2 = this._barometricPressureCalibrationData.readUInt16LE(4);
+  var c3 = this._barometricPressureCalibrationData.readUInt16LE(6);
+
+  var c4 = this._barometricPressureCalibrationData.readInt16LE(8);
+  var c5 = this._barometricPressureCalibrationData.readInt16LE(10);
+  var c6 = this._barometricPressureCalibrationData.readInt16LE(12);
+  var c7 = this._barometricPressureCalibrationData.readInt16LE(14);
+  
   var temp = data.readInt16LE(0);
-  var pressure = data.readUInt16LE(1);
-
-  var S = c3 + ((c4 * temp)/ 131072.0) + ((c5 * (temp * temp)) / 17179869184.0);
-  var O = (c6 * 16384.0) + (((c7 * temp) / 8)) + ((c8 * (temp * temp)) / 524288.0);
-  var Pa = (((S * pressure) + O) / 16384.0);
+  var pressure = data.readUInt16LE(2);
+  
+  //var t_a = (100.0 * (c0 * temp / 256.0 + c1* 64.0)) / 65536.0;
+  S = c2 + ((c3 * temp)/ 131072.0) + ((c4 * (temp * temp)) / 17179869184.0);
+  O = (c5 * 16384.0) + (((c6 * temp) / 8)) + ((c7 * (temp * temp)) / 524288.0);
+  Pa = (((S * pressure) + O) / 16384.0);
 
   Pa /= 100.0;
 
