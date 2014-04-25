@@ -10,6 +10,15 @@ SensorTag.discover(function(sensorTag) {
     console.log('disconnected!');
     process.exit(0);
   });
+  
+  sensorTag.on('connectionDrop', function() {
+    console.log('connection drop!');
+  });
+  
+  sensorTag.on('reconnect', function() {
+    console.log('successfully reconnected!');
+  });
+
 
   async.series([
       function(callback) {
