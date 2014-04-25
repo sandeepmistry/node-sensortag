@@ -213,8 +213,11 @@ SensorTag.prototype.notifyCharacteristic = function(uuid, notify, listener, call
       this._enabledNotifications.push(characteristic); 
     } else {
       characteristic.removeListener('read', listener);
-      //Keep notification state for a possible restoration
-      this._enabledNotifications.pop(characteristic); 
+      //Remove from notification array if notification have been disabled
+      var charIndex = this._enabledNotifications.indexOf(characteristic);
+      if(charIndex != -1) {
+	    this._enabledNotifications.splice(charIndex, 1);
+      }
     }
     callback();
   }.bind(this));
