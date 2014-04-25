@@ -1,5 +1,5 @@
 /*jshint loopfunc: true */
-
+var debug = require('debug')('sensortag-node');
 var events = require('events');
 var util = require('util');
 
@@ -63,10 +63,17 @@ function SensorTag(peripheral) {
   this._peripheral = peripheral;
   this._services = {};
   this._characteristics = {};
+  this._notifications = {};
+    
+  //Attributes for restoration after a connection drop
+  this._enabledNotifications = [];
+  this._writtenCharacteristics = {};
 
   this.uuid = peripheral.uuid;
 
-  this._peripheral.on('disconnect', this.onDisconnect.bind(this));
+  this._peripheral.on('connectionDrop', this.onConnectionDrop.bind(this));
+  this._peripheral.on('disconnect', this.onDisconnect.bind(this));  
+  this._peripheral.on('connect', this.onConnect.bind(this));
 }
 
 util.inherits(SensorTag, events.EventEmitter);
@@ -95,8 +102,43 @@ SensorTag.discover = function(callback, uuid) {
   startScanningOnPowerOn();
 };
 
+SensorTag.prototype.onConnectionDrop = function() {
+  //Reconnect in all cases 
+  this._peripheral.reconnect();
+  this.emit('connectionDrop');
+};
+
+SensorTag.prototype.onReconnectAfterCharsDiscovery = function() {
+  this.restoreCharsAndNotifs(function(){});
+  this.emit('reconnect');
+};
+
+SensorTag.prototype.onReconnectDuringCharsDiscovery = function(callback) {
+  this.discoverServicesAndCharacteristics(callback);
+  this.emit('reconnect');
+};
+
+SensorTag.prototype.restoreCharsAndNotifs = function() {
+  debug('restore sensor tag written characteristics and notifications after connection drop');
+
+  //Try to restore written characteristics - listener have already been registered
+  for(var char_uuid in this._writtenCharacteristics){
+    this._characteristics[char_uuid].write(this._writtenCharacteristics[char_uuid], false, function(){});
+  }
+  
+  //Try to restore enabled notifications
+  for(var char_index = 0; char_index < this._enabledNotifications.length; char_index++){
+    this._enabledNotifications[char_index].notify(true, function(state) {});
+  }
+  this.emit('reconnect');
+};
+
 SensorTag.prototype.onDisconnect = function() {
   this.emit('disconnect');
+};
+
+SensorTag.prototype.onConnect = function() {
+  this.emit('connect');
 };
 
 SensorTag.prototype.toString = function() {
@@ -110,10 +152,17 @@ SensorTag.prototype.connect = function(callback) {
 };
 
 SensorTag.prototype.disconnect = function(callback) {
+  //Empty data stored for reconnection
+  this._enabled_notifications.length = 0;
+  this._written_characteristics = {};
+  
   this._peripheral.disconnect(callback);
 };
 
 SensorTag.prototype.discoverServicesAndCharacteristics = function(callback) {
+  this._peripheral.removeAllListeners('reconnect');
+  this._peripheral.on('reconnect', this.onReconnectDuringCharsDiscovery.bind(this, callback));
+
   this._peripheral.discoverAllServicesAndCharacteristics(function(error, services, characteristics) {
     if (error === null) {
       for (var i in services) {
@@ -128,12 +177,18 @@ SensorTag.prototype.discoverServicesAndCharacteristics = function(callback) {
         }
     }
 
+    this._peripheral.removeAllListeners('reconnect');
+    this._peripheral.on('reconnect', this.onReconnectAfterCharsDiscovery.bind(this));
     callback();
   }.bind(this));
 };
 
 SensorTag.prototype.writeCharacteristic = function(uuid, data, callback) {
-  this._characteristics[uuid].write(data, false, callback);
+  this._characteristics[uuid].write(data, false, function(){
+    //Keep written characteristics for a possible restoration
+    this._writtenCharacteristics[uuid] = data;
+    callback();
+  }.bind(this));
 };
 
 SensorTag.prototype.writePeriodCharacteristic = function(uuid, period, callback) {
@@ -153,13 +208,16 @@ SensorTag.prototype.notifyCharacteristic = function(uuid, notify, listener, call
 
   characteristic.notify(notify, function(state) {
     if (notify) {
-      characteristic.addListener('read', listener);
+      characteristic.on('read', listener);
+      //Keep notification state for a possible restoration
+      this._enabledNotifications.push(characteristic); 
     } else {
       characteristic.removeListener('read', listener);
+      //Keep notification state for a possible restoration
+      this._enabledNotifications.pop(characteristic); 
     }
-
     callback();
-  });
+  }.bind(this));
 };
 
 SensorTag.prototype.enableConfigCharacteristic = function(uuid, callback) {
