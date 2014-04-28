@@ -19,6 +19,7 @@ var GYROSCOPE_UUID                          = 'f000aa5004514000b000000000000000'
 var SIMPLE_KEY_UUID                         = 'ffe0';
 var TEST_UUID                               = 'f000aa6004514000b000000000000000';
 var OAD_UUID                                = 'f000ffc004514000b000000000000000';
+var BATTERY_UUID                            = '180f';
 
 var DEVICE_NAME_UUID                        = '2a00';
 var APPEARANCE_UUID                         = '2a01';
@@ -35,6 +36,7 @@ var SOFTWARE_REVISION_UUID                  = '2a28';
 var MANUFACTURER_NAME_UUID                  = '2a29';
 var REGULATORY_CERTIFICATE_DATA_LIST_UUID   = '2a2a';
 var PNP_ID_UUID                             = '2a50';
+var BATTERY_LEVEL_DATA_UUID                 = '2a19';
 
 var IR_TEMPERATURE_CONFIG_UUID              = 'f000aa0204514000b000000000000000';
 var IR_TEMPERATURE_DATA_UUID                = 'f000aa0104514000b000000000000000';
@@ -171,8 +173,9 @@ SensorTag.prototype.discoverServicesAndCharacteristics = function(callback) {
       }
 
       for (var j in characteristics) {
-          var characteristic = characteristics[j];
 
+          var characteristic = characteristics[j];
+          debug('discovered char with uuid ' + characteristic.uuid + ' ' + characteristic);
           this._characteristics[characteristic.uuid] = characteristic;
         }
     }
@@ -596,5 +599,33 @@ SensorTag.prototype.notifySimpleKey = function(callback) {
 SensorTag.prototype.unnotifySimpleKey = function(callback) {
   this.notifyCharacteristic(SIMPLE_KEY_DATA_UUID, false, this.onSimpleKeyChange.bind(this), callback);
 };
+
+SensorTag.prototype.readBatteryLevel = function(callback) {
+  this.readDataCharacteristic(BATTERY_LEVEL_DATA_UUID, function(data) {
+    this.convertBatteryLevelData(data, callback);
+  }.bind(this));
+};
+
+SensorTag.prototype.convertBatteryLevelData = function(data, callback) {
+  //Level in % on 1 byte
+  var level = data.readInt8(0)
+  callback(level);
+};
+
+SensorTag.prototype.onBatteryLevelChange = function(data) {
+  debugger;
+  this.convertBatteryLevelData(data, function(level) {
+    this.emit('batteryLevelChange', level);
+  }.bind(this));
+};
+
+SensorTag.prototype.notifyBatteryLevel = function(callback) {
+  this.notifyCharacteristic(BATTERY_LEVEL_DATA_UUID, true, this.onBatteryLevelChange.bind(this), callback);
+};
+
+SensorTag.prototype.unnotifyBatteryLevel = function(callback) {
+  this.notifyCharacteristic(BATTERY_LEVEL_DATA_UUID, false, this.onBatteryLevelChange.bind(this), callback);
+};
+
 
 module.exports = SensorTag;

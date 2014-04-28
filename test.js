@@ -254,6 +254,21 @@ SensorTag.discover(function(sensorTag) {
         sensorTag.disableGyroscope(callback);
       },
       function(callback) {
+        console.log('readBatteryLevel');
+        sensorTag.readBatteryLevel(function(level) {
+          console.log('\tbatteryLevel = %d %', level);
+          callback();
+        });
+
+        // sensorTag.on('batteryLevelChange', function(level) {
+        //     console.log('\tbatteryLevel = %d %', level);
+        // });
+
+        // sensorTag.notifyBatteryLevel(function() {
+
+        // });
+      },
+      function(callback) {
         console.log('readSimpleRead');
         sensorTag.on('simpleKeyChange', function(left, right) {
           console.log('left: ' + left);
