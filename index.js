@@ -372,7 +372,7 @@ SensorTag.prototype.onAccelerometerChange = function(data) {
 
 SensorTag.prototype.convertAccelerometerData = function(data, callback) {
   var accelerometerFactor;
-  if(_fwVersion >= 1.4)
+  if(this._fwVersion >= 1.4)
   {
     accelerometerFactor = 16;
   }
@@ -593,7 +593,7 @@ SensorTag.prototype.unnotifyGyroscope = function(callback) {
   this.notifyCharacteristic(GYROSCOPE_DATA_UUID, false, this.onGyroscopeChange.bind(this), callback);
 };
 
-SensorTag.prototype.setAccelerometerPeriod = function(period, callback) {
+SensorTag.prototype.setGyroscopePeriod = function(period, callback) {
   this.writePeriodCharacteristic(GYRO_PERIOD_UUID, period, callback);
 };
 

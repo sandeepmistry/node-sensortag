@@ -1,5 +1,5 @@
 var util = require('util');
-var debug = require('debug')('test_gyro');
+
 var async = require('async');
 
 var SensorTag = require('./index');
@@ -80,21 +80,12 @@ SensorTag.discover(function(sensorTag) {
       },
 
       function(callback) {
-        console.log('enableGyroscope');
-        sensorTag.enableGyroscope(callback);
-        //100 is min value corresponding to 10ms
-        sensorTag.setGyroscopePeriod(100, function(){});
-      },
-      function(callback) {
-        setTimeout(callback, 1000);
-      },
-      function(callback) {
-         sensorTag.on('gyroscopeChange', function(x, y, z) {
-           debug('\tx = %d °/s - y = %d °/s - z = %d °/s', x.toFixed(1), y.toFixed(1), z.toFixed(1));
-         });
-         sensorTag.notifyGyroscope(function() {
-         });
-      }
+        sensorTag.on('batteryLevelChange', function(level) {
+          console.log('\tbatteryLevel = %d %', level);
+        });
+        sensorTag.notifyBatteryLevel(function() {
+        });
+     }
     ]
   );
 });
