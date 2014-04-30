@@ -58,6 +58,7 @@ var BAROMETRIC_PRESSURE_CALIBRATION_UUID    = 'f000aa4304514000b000000000000000'
 
 var GYROSCOPE_CONFIG_UUID                   = 'f000aa5204514000b000000000000000';
 var GYROSCOPE_DATA_UUID                     = 'f000aa5104514000b000000000000000';
+var GYRO_PERIOD_UUID                        = 'f000aa5304514000b000000000000000';
 
 var SIMPLE_KEY_DATA_UUID                    = 'ffe1';
 
@@ -72,6 +73,8 @@ function SensorTag(peripheral) {
   this._writtenCharacteristics = {};
 
   this.uuid = peripheral.uuid;
+  //1.2 format
+  this._fwVersion = 0;
 
   this._peripheral.on('connectionDrop', this.onConnectionDrop.bind(this));
   this._peripheral.on('disconnect', this.onDisconnect.bind(this));  
@@ -175,11 +178,15 @@ SensorTag.prototype.discoverServicesAndCharacteristics = function(callback) {
       for (var j in characteristics) {
 
           var characteristic = characteristics[j];
-          debug('discovered char with uuid ' + characteristic.uuid + ' ' + characteristic);
           this._characteristics[characteristic.uuid] = characteristic;
         }
     }
 
+    //Read FW revision
+    this.readFirmwareRevision(function(fwVersion){
+      this._fwVersion = parseFloat(fwVersion.split(' ')[0]);
+    }.bind(this));
+    
     this._peripheral.removeAllListeners('reconnect');
     this._peripheral.on('reconnect', this.onReconnectAfterCharsDiscovery.bind(this));
     callback();
@@ -364,9 +371,18 @@ SensorTag.prototype.onAccelerometerChange = function(data) {
 };
 
 SensorTag.prototype.convertAccelerometerData = function(data, callback) {
-  var x = data.readInt8(0) * 4.0 / 256.0;
-  var y = data.readInt8(1) * 4.0 / 256.0;
-  var z = data.readInt8(2) * 4.0 / 256.0;
+  var accelerometerFactor;
+  if(_fwVersion >= 1.4)
+  {
+    accelerometerFactor = 16;
+  }
+  else
+  {
+    accelerometerFactor = 4;
+  } 
+  var x = data.readInt8(0) * accelerometerFactor / 256.0;
+  var y = data.readInt8(1) * accelerometerFactor / 256.0;
+  var z = data.readInt8(2) * accelerometerFactor / 256.0;
 
   callback(x, y, z);
 };
@@ -575,6 +591,10 @@ SensorTag.prototype.notifyGyroscope = function(callback) {
 
 SensorTag.prototype.unnotifyGyroscope = function(callback) {
   this.notifyCharacteristic(GYROSCOPE_DATA_UUID, false, this.onGyroscopeChange.bind(this), callback);
+};
+
+SensorTag.prototype.setAccelerometerPeriod = function(period, callback) {
+  this.writePeriodCharacteristic(GYRO_PERIOD_UUID, period, callback);
 };
 
 SensorTag.prototype.onSimpleKeyChange = function(data) {
