@@ -423,12 +423,11 @@ SensorTag.prototype.onBarometricPressureChange = function(data) {
 SensorTag.prototype.convertBarometricPressureData = function(data, callback) {
 
   // For computation refer :  http://processors.wiki.ti.com/index.php/SensorTag_User_Guide#Barometric_Pressure_Sensor_2
-  var temp;	// Temperature raw value from sensor
-  var pressure;	// Pressure raw value from sensor
-  //var t_a; 	// Temperature actual value in unit centi degrees celsius
-  var S;	// Interim value in calculation
-  var O;	// Interim value in calculation
-  var p_a; 	// Pressure actual value in unit Pascal.
+  var temp;     // Temperature raw value from sensor
+  var pressure; // Pressure raw value from sensor
+  var S;        // Interim value in calculation
+  var O;        // Interim value in calculation
+  var p_a;      // Pressure actual value in unit Pascal.
 
   var c0 = this._barometricPressureCalibrationData.readUInt16LE(0);
   var c1 = this._barometricPressureCalibrationData.readUInt16LE(2);
@@ -440,10 +439,9 @@ SensorTag.prototype.convertBarometricPressureData = function(data, callback) {
   var c6 = this._barometricPressureCalibrationData.readInt16LE(12);
   var c7 = this._barometricPressureCalibrationData.readInt16LE(14);
   
-  var temp = data.readInt16LE(0);
-  var pressure = data.readUInt16LE(2);
+  temp = data.readInt16LE(0);
+  pressure = data.readUInt16LE(2);
   
-  //var t_a = (100.0 * (c0 * temp / 256.0 + c1* 64.0)) / 65536.0;
   S = c2 + ((c3 * temp)/ 131072.0) + ((c4 * (temp * temp)) / 17179869184.0);
   O = (c5 * 16384.0) + (((c6 * temp) / 8)) + ((c7 * (temp * temp)) / 524288.0);
   Pa = (((S * pressure) + O) / 16384.0);
