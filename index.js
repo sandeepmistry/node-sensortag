@@ -1,5 +1,5 @@
 /*jshint loopfunc: true */
-
+var debug = require('debug')('sensortag-node');
 var events = require('events');
 var util = require('util');
 
@@ -19,6 +19,7 @@ var GYROSCOPE_UUID                          = 'f000aa5004514000b000000000000000'
 var SIMPLE_KEY_UUID                         = 'ffe0';
 var TEST_UUID                               = 'f000aa6004514000b000000000000000';
 var OAD_UUID                                = 'f000ffc004514000b000000000000000';
+var BATTERY_UUID                            = '180f';
 
 var DEVICE_NAME_UUID                        = '2a00';
 var APPEARANCE_UUID                         = '2a01';
@@ -35,6 +36,7 @@ var SOFTWARE_REVISION_UUID                  = '2a28';
 var MANUFACTURER_NAME_UUID                  = '2a29';
 var REGULATORY_CERTIFICATE_DATA_LIST_UUID   = '2a2a';
 var PNP_ID_UUID                             = '2a50';
+var BATTERY_LEVEL_DATA_UUID                 = '2a19';
 
 var IR_TEMPERATURE_CONFIG_UUID              = 'f000aa0204514000b000000000000000';
 var IR_TEMPERATURE_DATA_UUID                = 'f000aa0104514000b000000000000000';
@@ -56,6 +58,7 @@ var BAROMETRIC_PRESSURE_CALIBRATION_UUID    = 'f000aa4304514000b000000000000000'
 
 var GYROSCOPE_CONFIG_UUID                   = 'f000aa5204514000b000000000000000';
 var GYROSCOPE_DATA_UUID                     = 'f000aa5104514000b000000000000000';
+var GYRO_PERIOD_UUID                        = 'f000aa5304514000b000000000000000';
 
 var SIMPLE_KEY_DATA_UUID                    = 'ffe1';
 
@@ -63,10 +66,31 @@ function SensorTag(peripheral) {
   this._peripheral = peripheral;
   this._services = {};
   this._characteristics = {};
+  this._notifications = {};
+  this._bindings = {};
+    
+  //Attributes for restoration after a connection drop
+  this._enabledNotifications = [];
+  this._writtenCharacteristics = {};
 
   this.uuid = peripheral.uuid;
+  //1.2 format
+  this._fwVersion = 0;
 
-  this._peripheral.on('disconnect', this.onDisconnect.bind(this));
+  this._peripheral.on('connectionDrop', this.onConnectionDrop.bind(this));
+  this._peripheral.on('disconnect', this.onDisconnect.bind(this));  
+  this._peripheral.on('connect', this.onConnect.bind(this));
+  
+  //Set all bindings - workaround to Nodejs events listener implementation : two same methods binded won't be
+  //recognized as same listener
+  this._bindings.onIrTemperatureChange = this.onIrTemperatureChange.bind(this);
+  this._bindings.onGyroscopeChange = this.onGyroscopeChange.bind(this);
+  this._bindings.onAccelerometerChange = this.onAccelerometerChange.bind(this);
+  this._bindings.onHumidityChange = this.onHumidityChange.bind(this);
+  this._bindings.onMagnetometerChange = this.onMagnetometerChange.bind(this);
+  this._bindings.onBarometricPressureChange = this.onBarometricPressureChange.bind(this);
+  this._bindings.onSimpleKeyChange = this.onSimpleKeyChange.bind(this);
+  this._bindings.onBatteryLevelChange = this.onBatteryLevelChange.bind(this);
 }
 
 util.inherits(SensorTag, events.EventEmitter);
@@ -95,8 +119,43 @@ SensorTag.discover = function(callback, uuid) {
   startScanningOnPowerOn();
 };
 
+SensorTag.prototype.onConnectionDrop = function() {
+  //Reconnect in all cases 
+  this._peripheral.reconnect();
+  this.emit('connectionDrop');
+};
+
+SensorTag.prototype.onReconnectAfterCharsDiscovery = function() {
+  this.restoreCharsAndNotifs(function(){});
+  this.emit('reconnect');
+};
+
+SensorTag.prototype.onReconnectDuringCharsDiscovery = function(callback) {
+  this.discoverServicesAndCharacteristics(callback);
+  this.emit('reconnect');
+};
+
+SensorTag.prototype.restoreCharsAndNotifs = function() {
+  debug('restore sensor tag written characteristics and notifications after connection drop');
+
+  //Try to restore written characteristics - listener have already been registered
+  for(var char_uuid in this._writtenCharacteristics){
+    this._characteristics[char_uuid].write(this._writtenCharacteristics[char_uuid], false, function(){});
+  }
+  
+  //Try to restore enabled notifications
+  for(var char_index = 0; char_index < this._enabledNotifications.length; char_index++){
+    this._enabledNotifications[char_index].notify(true, function(state) {});
+  }
+  this.emit('reconnect');
+};
+
 SensorTag.prototype.onDisconnect = function() {
   this.emit('disconnect');
+};
+
+SensorTag.prototype.onConnect = function() {
+  this.emit('connect');
 };
 
 SensorTag.prototype.toString = function() {
@@ -110,10 +169,17 @@ SensorTag.prototype.connect = function(callback) {
 };
 
 SensorTag.prototype.disconnect = function(callback) {
+  //Empty data stored for reconnection
+  this._enabled_notifications.length = 0;
+  this._written_characteristics = {};
+  
   this._peripheral.disconnect(callback);
 };
 
 SensorTag.prototype.discoverServicesAndCharacteristics = function(callback) {
+  this._peripheral.removeAllListeners('reconnect');
+  this._peripheral.on('reconnect', this.onReconnectDuringCharsDiscovery.bind(this, callback));
+
   this._peripheral.discoverAllServicesAndCharacteristics(function(error, services, characteristics) {
     if (error === null) {
       for (var i in services) {
@@ -122,18 +188,29 @@ SensorTag.prototype.discoverServicesAndCharacteristics = function(callback) {
       }
 
       for (var j in characteristics) {
-          var characteristic = characteristics[j];
 
+          var characteristic = characteristics[j];
           this._characteristics[characteristic.uuid] = characteristic;
         }
     }
 
+    //Read FW revision
+    this.readFirmwareRevision(function(fwVersion){
+      this._fwVersion = parseFloat(fwVersion.split(' ')[0]);
+    }.bind(this));
+    
+    this._peripheral.removeAllListeners('reconnect');
+    this._peripheral.on('reconnect', this.onReconnectAfterCharsDiscovery.bind(this));
     callback();
   }.bind(this));
 };
 
 SensorTag.prototype.writeCharacteristic = function(uuid, data, callback) {
-  this._characteristics[uuid].write(data, false, callback);
+  this._characteristics[uuid].write(data, false, function(){
+    //Keep written characteristics for a possible restoration
+    this._writtenCharacteristics[uuid] = data;
+    callback();
+  }.bind(this));
 };
 
 SensorTag.prototype.writePeriodCharacteristic = function(uuid, period, callback) {
@@ -153,13 +230,19 @@ SensorTag.prototype.notifyCharacteristic = function(uuid, notify, listener, call
 
   characteristic.notify(notify, function(state) {
     if (notify) {
-      characteristic.addListener('read', listener);
+      characteristic.on('read', listener);
+      //Keep notification state for a possible restoration
+      this._enabledNotifications.push(characteristic); 
     } else {
       characteristic.removeListener('read', listener);
+      //Remove from notification array if notification have been disabled
+      var charIndex = this._enabledNotifications.indexOf(characteristic);
+      if(charIndex != -1) {
+	    this._enabledNotifications.splice(charIndex, 1);
+      }
     }
-
     callback();
-  });
+  }.bind(this));
 };
 
 SensorTag.prototype.enableConfigCharacteristic = function(uuid, callback) {
@@ -272,11 +355,11 @@ SensorTag.prototype.convertIrTemperatureData = function(data, callback) {
 };
 
 SensorTag.prototype.notifyIrTemperature = function(callback) {
-  this.notifyCharacteristic(IR_TEMPERATURE_DATA_UUID, true, this.onIrTemperatureChange.bind(this), callback);
+  this.notifyCharacteristic(IR_TEMPERATURE_DATA_UUID, true, this._bindings.onIrTemperatureChange, callback);
 };
 
 SensorTag.prototype.unnotifyIrTemperature = function(callback) {
-  this.notifyCharacteristic(IR_TEMPERATURE_DATA_UUID, false, this.onIrTemperatureChange.bind(this), callback);
+  this.notifyCharacteristic(IR_TEMPERATURE_DATA_UUID, false, this._bindings.onIrTemperatureChange, callback);
 };
 
 SensorTag.prototype.enableAccelerometer = function(callback) {
@@ -300,19 +383,28 @@ SensorTag.prototype.onAccelerometerChange = function(data) {
 };
 
 SensorTag.prototype.convertAccelerometerData = function(data, callback) {
-  var x = data.readInt8(0) * 4.0 / 256.0;
-  var y = data.readInt8(1) * 4.0 / 256.0;
-  var z = data.readInt8(2) * 4.0 / 256.0;
+  var accelerometerFactor;
+  if(this._fwVersion >= 1.4)
+  {
+    accelerometerFactor = 16;
+  }
+  else
+  {
+    accelerometerFactor = 4;
+  } 
+  var x = data.readInt8(0) * accelerometerFactor / 256.0;
+  var y = data.readInt8(1) * accelerometerFactor / 256.0;
+  var z = data.readInt8(2) * accelerometerFactor / 256.0;
 
   callback(x, y, z);
 };
 
 SensorTag.prototype.notifyAccelerometer = function(callback) {
-  this.notifyCharacteristic(ACCELEROMETER_DATA_UUID, true, this.onAccelerometerChange.bind(this), callback);
+  this.notifyCharacteristic(ACCELEROMETER_DATA_UUID, true, this._bindings.onAccelerometerChange, callback);
 };
 
 SensorTag.prototype.unnotifyAccelerometer = function(callback) {
-  this.notifyCharacteristic(ACCELEROMETER_DATA_UUID, false, this.onAccelerometerChange.bind(this), callback);
+  this.notifyCharacteristic(ACCELEROMETER_DATA_UUID, false, this._bindings.onAccelerometerChange, callback);
 };
 
 SensorTag.prototype.setAccelerometerPeriod = function(period, callback) {
@@ -347,11 +439,11 @@ SensorTag.prototype.convertHumidityData = function(data, callback) {
 };
 
 SensorTag.prototype.notifyHumidity = function(callback) {
-  this.notifyCharacteristic(HUMIDITY_DATA_UUID, true, this.onHumidityChange.bind(this), callback);
+  this.notifyCharacteristic(HUMIDITY_DATA_UUID, true, this._bindings.onHumidityChange, callback);
 };
 
 SensorTag.prototype.unnotifyHumidity = function(callback) {
-  this.notifyCharacteristic(HUMIDITY_DATA_UUID, false, this.onHumidityChange.bind(this), callback);
+  this.notifyCharacteristic(HUMIDITY_DATA_UUID, false, this._bindings.onHumidityChange, callback);
 };
 
 SensorTag.prototype.enableMagnetometer = function(callback) {
@@ -383,11 +475,11 @@ SensorTag.prototype.convertMagnetometerData = function(data, callback) {
 };
 
 SensorTag.prototype.notifyMagnetometer = function(callback) {
-  this.notifyCharacteristic(MAGNETOMETER_DATA_UUID, true, this.onMagnetometerChange.bind(this), callback);
+  this.notifyCharacteristic(MAGNETOMETER_DATA_UUID, true, this._bindings.onMagnetometerChange, callback);
 };
 
 SensorTag.prototype.unnotifyMagnetometer = function(callback) {
-  this.notifyCharacteristic(MAGNETOMETER_DATA_UUID, false, this.onMagnetometerChange.bind(this), callback);
+  this.notifyCharacteristic(MAGNETOMETER_DATA_UUID, false, this._bindings.onMagnetometerChange, callback);
 };
 
 SensorTag.prototype.setMagnetometerPeriod = function(period, callback) {
@@ -452,11 +544,11 @@ SensorTag.prototype.convertBarometricPressureData = function(data, callback) {
 };
 
 SensorTag.prototype.notifyBarometricPressure = function(callback) {
-  this.notifyCharacteristic(BAROMETRIC_PRESSURE_DATA_UUID, true, this.onBarometricPressureChange.bind(this), callback);
+  this.notifyCharacteristic(BAROMETRIC_PRESSURE_DATA_UUID, true, this._bindings.onBarometricPressureChange, callback);
 };
 
 SensorTag.prototype.unnotifyBarometricPressure = function(callback) {
-  this.notifyCharacteristic(BAROMETRIC_PRESSURE_DATA_UUID, false, this.onBarometricPressureChange.bind(this), callback);
+  this.notifyCharacteristic(BAROMETRIC_PRESSURE_DATA_UUID, false, this._bindings.onBarometricPressureChange, callback);
 };
 
 SensorTag.prototype.enableGyroscope = function(callback) {
@@ -504,11 +596,15 @@ SensorTag.prototype.convertGyroscopeData = function(data, callback) {
 };
 
 SensorTag.prototype.notifyGyroscope = function(callback) {
-  this.notifyCharacteristic(GYROSCOPE_DATA_UUID, true, this.onGyroscopeChange.bind(this), callback);
+  this.notifyCharacteristic(GYROSCOPE_DATA_UUID, true, this._bindings.onGyroscopeChange, callback);
 };
 
 SensorTag.prototype.unnotifyGyroscope = function(callback) {
-  this.notifyCharacteristic(GYROSCOPE_DATA_UUID, false, this.onGyroscopeChange.bind(this), callback);
+  this.notifyCharacteristic(GYROSCOPE_DATA_UUID, false, this._bindings.onGyroscopeChange, callback);
+};
+
+SensorTag.prototype.setGyroscopePeriod = function(period, callback) {
+  this.writePeriodCharacteristic(GYRO_PERIOD_UUID, period, callback);
 };
 
 SensorTag.prototype.onSimpleKeyChange = function(data) {
@@ -527,11 +623,38 @@ SensorTag.prototype.convertSimpleKeyData = function(data, callback) {
 };
 
 SensorTag.prototype.notifySimpleKey = function(callback) {
-  this.notifyCharacteristic(SIMPLE_KEY_DATA_UUID, true, this.onSimpleKeyChange.bind(this), callback);
+  this.notifyCharacteristic(SIMPLE_KEY_DATA_UUID, true, this._bindings.onSimpleKeyChange, callback);
 };
 
 SensorTag.prototype.unnotifySimpleKey = function(callback) {
-  this.notifyCharacteristic(SIMPLE_KEY_DATA_UUID, false, this.onSimpleKeyChange.bind(this), callback);
+  this.notifyCharacteristic(SIMPLE_KEY_DATA_UUID, false, this._bindings.onSimpleKeyChange, callback);
 };
+
+SensorTag.prototype.readBatteryLevel = function(callback) {
+  this.readDataCharacteristic(BATTERY_LEVEL_DATA_UUID, function(data) {
+    this.convertBatteryLevelData(data, callback);
+  }.bind(this));
+};
+
+SensorTag.prototype.convertBatteryLevelData = function(data, callback) {
+  //Level in % on 1 byte
+  var level = data.readInt8(0)
+  callback(level);
+};
+
+SensorTag.prototype.onBatteryLevelChange = function(data) {
+  this.convertBatteryLevelData(data, function(level) {
+    this.emit('batteryLevelChange', level);
+  }.bind(this));
+};
+
+SensorTag.prototype.notifyBatteryLevel = function(callback) {
+  this.notifyCharacteristic(BATTERY_LEVEL_DATA_UUID, true, this._bindings.onBatteryLevelChange, callback);
+};
+
+SensorTag.prototype.unnotifyBatteryLevel = function(callback) {
+  this.notifyCharacteristic(BATTERY_LEVEL_DATA_UUID, false, this._bindings.onBatteryLevelChange, callback);
+};
+
 
 module.exports = SensorTag;

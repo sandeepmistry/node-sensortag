@@ -10,6 +10,15 @@ SensorTag.discover(function(sensorTag) {
     console.log('disconnected!');
     process.exit(0);
   });
+  
+  sensorTag.on('connectionDrop', function() {
+    console.log('connection drop!');
+  });
+  
+  sensorTag.on('reconnect', function() {
+    console.log('successfully reconnected!');
+  });
+
 
   async.series([
       function(callback) {
@@ -243,6 +252,21 @@ SensorTag.discover(function(sensorTag) {
       function(callback) {
         console.log('disableGyroscope');
         sensorTag.disableGyroscope(callback);
+      },
+      function(callback) {
+        console.log('readBatteryLevel');
+        sensorTag.readBatteryLevel(function(level) {
+          console.log('\tbatteryLevel = %d %', level);
+          callback();
+        });
+
+        // sensorTag.on('batteryLevelChange', function(level) {
+        //     console.log('\tbatteryLevel = %d %', level);
+        // });
+
+        // sensorTag.notifyBatteryLevel(function() {
+
+        // });
       },
       function(callback) {
         console.log('readSimpleRead');

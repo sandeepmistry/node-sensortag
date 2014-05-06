@@ -181,3 +181,17 @@ Notify/Unnotify:
     sensorTag.unnotifySimpleKey(callback);
 
     sensorTag.on('simpleKeyChange', callback(left, right));
+    
+__Battery Level__
+
+Read:
+
+    sensorTag.readBatteryLevel(callback(level));
+
+Notify/Unnotify:
+
+    sensorTag.notifyBatteryLevel(callback);
+
+    sensorTag.unnotifyBatteryLevel(callback);
+
+    sensorTag.on('batteryLevelChange', callback(level));    
