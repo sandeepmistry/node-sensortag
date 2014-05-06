@@ -7,83 +7,86 @@ var SensorTag = require('./index');
 SensorTag.discover(function(sensorTag) {
 
   sensorTag.on('disconnect', function() {
-    console.log('disconnected!');
+    debug('disconnected!');
     process.exit(0);
   });
   
   sensorTag.on('connectionDrop', function() {
-    console.log('connection drop!');
+    debug('connection drop!');
   });
   
   sensorTag.on('reconnect', function() {
-    console.log('successfully reconnected!');
+    debug('successfully reconnected!');
   });
 
 
   async.series([
       function(callback) {
-        console.log('connect');
+        debug('connect');
         sensorTag.connect(callback);
       },
       function(callback) {
-        console.log('discoverServicesAndCharacteristics');
+        debug('discoverServicesAndCharacteristics');
         sensorTag.discoverServicesAndCharacteristics(callback);
       },
       function(callback) {
-        console.log('readDeviceName');
+        debug('readDeviceName');
         sensorTag.readDeviceName(function(deviceName) {
-          console.log('\tdevice name = ' + deviceName);
+          debug('\tdevice name = ' + deviceName);
           callback();
         });
       },
       function(callback) {
-        console.log('readSystemId');
+        debug('readSystemId');
         sensorTag.readSystemId(function(systemId) {
-          console.log('\tsystem id = ' + systemId);
+          debug('\tsystem id = ' + systemId);
           callback();
         });
       },
       function(callback) {
-        console.log('readSerialNumber');
+        debug('readSerialNumber');
         sensorTag.readSerialNumber(function(serialNumber) {
-          console.log('\tserial number = ' + serialNumber);
+          debug('\tserial number = ' + serialNumber);
           callback();
         });
       },
       function(callback) {
-        console.log('readFirmwareRevision');
+        debug('readFirmwareRevision');
         sensorTag.readFirmwareRevision(function(firmwareRevision) {
-          console.log('\tfirmware revision = ' + firmwareRevision);
+          debug('\tfirmware revision = ' + firmwareRevision);
           callback();
         });
       },
       function(callback) {
-        console.log('readHardwareRevision');
+        debug('readHardwareRevision');
         sensorTag.readHardwareRevision(function(hardwareRevision) {
-          console.log('\thardware revision = ' + hardwareRevision);
+          debug('\thardware revision = ' + hardwareRevision);
           callback();
         });
       },
       function(callback) {
-        console.log('readSoftwareRevision');
+        debug('readSoftwareRevision');
         sensorTag.readHardwareRevision(function(softwareRevision) {
-          console.log('\tsoftware revision = ' + softwareRevision);
+          debug('\tsoftware revision = ' + softwareRevision);
           callback();
         });
       },
       function(callback) {
-        console.log('readManufacturerName');
+        debug('readManufacturerName');
         sensorTag.readManufacturerName(function(manufacturerName) {
-          console.log('\tmanufacturer name = ' + manufacturerName);
+          debug('\tmanufacturer name = ' + manufacturerName);
           callback();
         });
       },
 
       function(callback) {
-        console.log('enableGyroscope');
-        sensorTag.enableGyroscope(callback);
-        //100 is min value corresponding to 10ms
-        sensorTag.setGyroscopePeriod(100, function(){});
+        debug('enableGyroscope');
+        sensorTag.enableGyroscope(function(){
+          //100 is min value corresponding to 10ms
+          sensorTag.setGyroscopePeriod(100, function(){
+            callback();
+          });
+        });
       },
       function(callback) {
         setTimeout(callback, 1000);
@@ -93,8 +96,46 @@ SensorTag.discover(function(sensorTag) {
            debug('\tx = %d °/s - y = %d °/s - z = %d °/s', x.toFixed(1), y.toFixed(1), z.toFixed(1));
          });
          sensorTag.notifyGyroscope(function() {
+           callback()
          });
-      }
+      },
+      function(callback) {      
+        setTimeout(callback, 1000);
+      },
+      function(callback) {
+        sensorTag.disableGyroscope(function(){
+          debug('Gyroscope disabled');
+          setTimeout(callback, 1000);
+        });
+      },
+      function(callback) {      
+         sensorTag.unnotifyGyroscope(function() {
+           callback()
+         });
+      },
+      function(callback) {      
+         sensorTag.notifyGyroscope(function() {
+           callback()
+         });
+      },      
+      function(callback) {      
+        debug('enableGyroscope');
+        sensorTag.enableGyroscope(function(){
+          //1000 is min value corresponding to 100ms
+          sensorTag.setGyroscopePeriod(1000, function(){
+          callback();
+          });
+        });
+      },
+      function(callback) {      
+        setTimeout(callback, 1000);
+      },      
+      function(callback) {
+        sensorTag.disableGyroscope(function(){
+          debug('Gyroscope disabled');
+          callback();
+        });
+      },      
     ]
   );
 });
