@@ -8,18 +8,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/sandeepmistry/node-sensortag"
+    "url": "https://github.com/Lahorde/node-sensortag"
   },
   "keywords": [
     "TI",
     "SensorTag"
   ],
-  "author": "Sandeep Mistry",
+  "author": "Sandeep Mistry - forked by Lahorde",
   "license": "MIT",
   "readmeFilename": "README.md",
-  "gitHead": "8079ce586d6853dd70ffbe24c9a2169d6818d23b",
+  "gitHead": "dad6886016e5bff67f4ec388118ecf409dad35e6",
   "dependencies": {
-    "noble" : "*"
+    "noble" : "git://github.com/Lahorde/noble.git#dad6886016e5bff67f4ec388118ecf409dad35e6"
   },
   "devDependencies": {
     "async": "~0.2.7",

@@ -227,22 +227,27 @@ SensorTag.prototype.writePeriodCharacteristic = function (uuid, period, callback
 
 SensorTag.prototype.notifyCharacteristic = function (uuid, notify, listener, callback) {
 	var characteristic = this._characteristics[uuid];
-
-	characteristic.notify(notify, function (state) {
-		if (notify) {
-			characteristic.on('read', listener);
-			//Keep notification state for a possible restoration
-			this._enabledNotifications.push(characteristic);
-		} else {
-			characteristic.removeListener('read', listener);
-			//Remove from notification array if notification have been disabled
-			var charIndex = this._enabledNotifications.indexOf(characteristic);
-			if (charIndex != -1) {
-				this._enabledNotifications.splice(charIndex, 1);
-			}
-		}
+	if (characteristic === undefined) {
+	    //TODO throw error
+	    debug('characteristic with uuid ' + uuid + ' not supported by sensortag');
 		callback();
-	}.bind(this));
+	} else {
+		characteristic.notify(notify, function (state) {
+			if (notify) {
+				characteristic.on('read', listener);
+				//Keep notification state for a possible restoration
+				this._enabledNotifications.push(characteristic);
+			} else {
+				characteristic.removeListener('read', listener);
+				//Remove from notification array if notification have been disabled
+				var charIndex = this._enabledNotifications.indexOf(characteristic);
+				if (charIndex != -1) {
+					this._enabledNotifications.splice(charIndex, 1);
+				}
+			}
+			callback();
+		}.bind(this));
+	}
 };
 
 SensorTag.prototype.enableConfigCharacteristic = function (uuid, callback) {
@@ -254,9 +259,14 @@ SensorTag.prototype.disableConfigCharacteristic = function (uuid, callback) {
 };
 
 SensorTag.prototype.readDataCharacteristic = function (uuid, callback) {
-	this._characteristics[uuid].read(function (error, data) {
-		callback(data);
-	});
+	if (this._characteristics[uuid] === undefined) {
+		debug('characteristic with uuid ' + uuid + ' not supported by sensortag');
+	}
+    else{
+    	this._characteristics[uuid].read(function (error, data) {
+		    callback(data);
+	    });
+    }
 };
 
 SensorTag.prototype.readStringCharacteristic = function (uuid, callback) {
@@ -607,6 +617,7 @@ SensorTag.prototype.unnotifyGyroscope = function (callback) {
 };
 
 SensorTag.prototype.setGyroscopePeriod = function (period, callback) {
+	//TODO gyro period on 1.3?
 	this.writePeriodCharacteristic(GYRO_PERIOD_UUID, period, callback);
 };
 
