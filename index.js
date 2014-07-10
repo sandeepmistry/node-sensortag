@@ -66,7 +66,6 @@ function SensorTag(peripheral) {
 	this._peripheral = peripheral;
 	this._services = {};
 	this._characteristics = {};
-	this._notifications = {};
 	this._bindings = {};
 
 	//Attributes for restoration after a connection drop
@@ -189,7 +188,6 @@ SensorTag.prototype.discoverServicesAndCharacteristics = function (callback) {
 			}
 
 			for (var j in characteristics) {
-
 				var characteristic = characteristics[j];
 				this._characteristics[characteristic.uuid] = characteristic;
 			}
@@ -646,7 +644,13 @@ SensorTag.prototype.unnotifySimpleKey = function (callback) {
 
 SensorTag.prototype.readBatteryLevel = function (callback) {
 	this.readDataCharacteristic(BATTERY_LEVEL_DATA_UUID, function (data) {
-		this.convertBatteryLevelData(data, callback);
+		if(data.length == 1){
+			this.convertBatteryLevelData(data, callback);
+		}
+		else
+		{
+			callback(new Error('unable to get battery level'));
+		}
 	}.bind(this));
 };
 

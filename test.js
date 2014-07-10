@@ -255,8 +255,13 @@ SensorTag.discover(function(sensorTag) {
       },
       function(callback) {
         console.log('readBatteryLevel');
-        sensorTag.readBatteryLevel(function(level) {
-          console.log('\tbatteryLevel = %d %', level);
+        sensorTag.readBatteryLevel(function(error, level) {
+          if(error){
+          	console.log('battery level read test failed - ' + error);
+          }
+          else{
+            console.log('\tbatteryLevel = %d %', level);
+          }
           callback();
         });
 

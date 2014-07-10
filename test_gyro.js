@@ -81,8 +81,8 @@ SensorTag.discover(function (sensorTag) {
 		function (callback) {
 		debug('enableGyroscope');
 		sensorTag.enableGyroscope(function () {
-			//100 is min value corresponding to 10ms
-			sensorTag.setGyroscopePeriod(100, function () {
+			//1000 corresponds to 100ms
+			sensorTag.setGyroscopePeriod(1000, function () {
 				callback();
 			});
 		});
@@ -120,8 +120,8 @@ SensorTag.discover(function (sensorTag) {
 		function (callback) {
 		debug('enableGyroscope');
 		sensorTag.enableGyroscope(function () {
-			//1000 is min value corresponding to 100ms
-			sensorTag.setGyroscopePeriod(1000, function () {
+			//2000 is value corresponding to 200ms
+			sensorTag.setGyroscopePeriod(2000, function () {
 				callback();
 			});
 		});
