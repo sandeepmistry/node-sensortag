@@ -38,6 +38,7 @@ var PNP_ID_UUID                             = '2a50';
 
 var IR_TEMPERATURE_CONFIG_UUID              = 'f000aa0204514000b000000000000000';
 var IR_TEMPERATURE_DATA_UUID                = 'f000aa0104514000b000000000000000';
+var IR_TEMPERATURE_PERIOD_UUID              = 'f000aa0304514000b000000000000000';
 
 var ACCELEROMETER_CONFIG_UUID               = 'f000aa1204514000b000000000000000';
 var ACCELEROMETER_DATA_UUID                 = 'f000aa1104514000b000000000000000';
@@ -277,6 +278,10 @@ SensorTag.prototype.notifyIrTemperature = function(callback) {
 
 SensorTag.prototype.unnotifyIrTemperature = function(callback) {
   this.notifyCharacteristic(IR_TEMPERATURE_DATA_UUID, false, this.onIrTemperatureChange.bind(this), callback);
+};
+
+SensorTag.prototype.setIrTemperaturePeriod = function(period, callback) {
+  this.writePeriodCharacteristic(IR_TEMPERATURE_PERIOD_UUID, period, callback);
 };
 
 SensorTag.prototype.enableAccelerometer = function(callback) {
