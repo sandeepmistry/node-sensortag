@@ -1,4 +1,5 @@
 /*jshint loopfunc: true */
+"use strict";
 
 var debug = require('debug')('sensortag-node');
 var events = require('events');
@@ -109,9 +110,12 @@ SensorTag.discover = function (callback, uuid) {
 				noble.on('discover', onDiscover);
 
 				noble.startScanning();
-			} else {
+			} else if (noble.state === 'unknown') {
+                //Wait for adapter to be ready
 				noble.once('stateChange', startScanningOnPowerOn);
-			}
+			} else {
+                throw new Error('Please be sure Bluetooth 4.0 supported / enabled on your system before trying to connect to sensortag-node');
+            }
 		};
 
 	startScanningOnPowerOn();
@@ -135,17 +139,21 @@ SensorTag.prototype.onReconnectDuringCharsDiscovery = function (callback) {
 };
 
 SensorTag.prototype.restoreCharsAndNotifs = function () {
+	var emptyFunc = function () {},
+		char_uuid,
+		char_index;
 	debug('restore sensor tag written characteristics and notifications after connection drop');
-	var char_uuid, char_index;
 
 	//Try to restore written characteristics - listener have already been registered
 	for (char_uuid in this._writtenCharacteristics) {
-		this._characteristics[char_uuid].write(this._writtenCharacteristics[char_uuid], false, function () {});
+		if (this._writtenCharacteristics.hasOwnProperty(char_uuid)) {
+			this._characteristics[char_uuid].write(this._writtenCharacteristics[char_uuid], false, emptyFunc);
+		}
 	}
 
 	//Try to restore enabled notifications
 	for (char_index = 0; char_index < this._enabledNotifications.length; char_index++) {
-		this._enabledNotifications[char_index].notify(true, function (state) {});
+		this._enabledNotifications[char_index].notify(true, emptyFunc);
 	}
 	this.emit('reconnect');
 };
@@ -177,19 +185,22 @@ SensorTag.prototype.disconnect = function (callback) {
 };
 
 SensorTag.prototype.discoverServicesAndCharacteristics = function (callback) {
+    var index,
+		currCharacteristic,
+		currService;
 	this._peripheral.removeAllListeners('reconnect');
 	this._peripheral.on('reconnect', this.onReconnectDuringCharsDiscovery.bind(this, callback));
 
 	this._peripheral.discoverAllServicesAndCharacteristics(function (error, services, characteristics) {
 		if (error === null) {
-			for (var i in services) {
-				var service = services[i];
-				this._services[service.uuid] = service;
+			for (index = 0; index < services.length; index++) {
+				currService = services[index];
+				this._services[currService.uuid] = currService;
 			}
 
-			for (var j in characteristics) {
-				var characteristic = characteristics[j];
-				this._characteristics[characteristic.uuid] = characteristic;
+			for (index = 0; index < characteristics.length; index++) {
+				currCharacteristic = characteristics[index];
+				this._characteristics[currCharacteristic.uuid] = currCharacteristic;
 			}
 		}
 
@@ -226,11 +237,11 @@ SensorTag.prototype.writePeriodCharacteristic = function (uuid, period, callback
 SensorTag.prototype.notifyCharacteristic = function (uuid, notify, listener, callback) {
 	var characteristic = this._characteristics[uuid];
 	if (characteristic === undefined) {
-	    //TODO throw error
-	    debug('characteristic with uuid ' + uuid + ' not supported by sensortag');
+		//TODO throw error
+		debug('characteristic with uuid ' + uuid + ' not supported by sensortag');
 		callback();
 	} else {
-		characteristic.notify(notify, function (state) {
+		characteristic.notify(notify, function () {
 			if (notify) {
 				characteristic.on('read', listener);
 				//Keep notification state for a possible restoration
@@ -239,7 +250,7 @@ SensorTag.prototype.notifyCharacteristic = function (uuid, notify, listener, cal
 				characteristic.removeListener('read', listener);
 				//Remove from notification array if notification have been disabled
 				var charIndex = this._enabledNotifications.indexOf(characteristic);
-				if (charIndex != -1) {
+				if (charIndex !== -1) {
 					this._enabledNotifications.splice(charIndex, 1);
 				}
 			}
@@ -259,11 +270,10 @@ SensorTag.prototype.disableConfigCharacteristic = function (uuid, callback) {
 SensorTag.prototype.readDataCharacteristic = function (uuid, callback) {
 	if (this._characteristics[uuid] === undefined) {
 		debug('characteristic with uuid ' + uuid + ' not supported by sensortag');
-	}
-    else{
-    	this._characteristics[uuid].read(function (error, data) {
-		    callback(data);
-	    });
+	} else {
+		this._characteristics[uuid].read(function (error, data) {
+            callback(data);
+        });
     }
 };
 
@@ -288,7 +298,7 @@ SensorTag.prototype.readSystemId = function (callback) {
 			data.readUInt8(2).toString(16),
 			data.readUInt8(2).toString(16),
 			data.readUInt8(0).toString(16)
-			].join(':');
+		].join(':');
 
 		callback(systemId);
 	});
@@ -340,25 +350,25 @@ SensorTag.prototype.onIrTemperatureChange = function (data) {
 
 SensorTag.prototype.convertIrTemperatureData = function (data, callback) {
 	// For computation refer :  http://processors.wiki.ti.com/index.php/SensorTag_User_Guide#IR_Temperature_Sensor
-	var ambientTemperature = data.readInt16LE(2) / 128.0;
+	var ambientTemperature = data.readInt16LE(2) / 128.0,
+        Vobj2 = data.readInt16LE(0) * 0.00000015625,
+        Tdie2 = ambientTemperature + 273.15,
+        S0 = 5.593 * Math.pow(10, -14),
+        a1 = 1.75 * Math.pow(10, -3),
+        a2 = -1.678 * Math.pow(10, -5),
+        b0 = -2.94 * Math.pow(10, -5),
+        b1 = -5.7 * Math.pow(10, -7),
+        b2 = 4.63 * Math.pow(10, -9),
+        c2 = 13.4,
+        Tref = 298.15,
+        S = S0 * (1 + a1 * (Tdie2 - Tref) + a2 * Math.pow((Tdie2 - Tref), 2)),
+        Vos = b0 + b1 * (Tdie2 - Tref) + b2 * Math.pow((Tdie2 - Tref), 2),
+        fObj = (Vobj2 - Vos) + c2 * Math.pow((Vobj2 - Vos), 2),
+        objectTemperature = Math.pow(Math.pow(Tdie2, 4) + (fObj / S), 0.25);
 
-	var Vobj2 = data.readInt16LE(0) * 0.00000015625;
-	var Tdie2 = ambientTemperature + 273.15;
-	var S0 = 5.593 * Math.pow(10, -14);
-	var a1 = 1.75 * Math.pow(10, -3);
-	var a2 = -1.678 * Math.pow(10, -5);
-	var b0 = -2.94 * Math.pow(10, -5);
-	var b1 = -5.7 * Math.pow(10, -7);
-	var b2 = 4.63 * Math.pow(10, -9);
-	var c2 = 13.4;
-	var Tref = 298.15;
-	var S = S0 * (1 + a1 * (Tdie2 - Tref) + a2 * Math.pow((Tdie2 - Tref), 2));
-	var Vos = b0 + b1 * (Tdie2 - Tref) + b2 * Math.pow((Tdie2 - Tref), 2);
-	var fObj = (Vobj2 - Vos) + c2 * Math.pow((Vobj2 - Vos), 2);
-	var objectTemperature = Math.pow(Math.pow(Tdie2, 4) + (fObj / S), 0.25);
-	objectTemperature = (objectTemperature - 273.15);
+    objectTemperature = (objectTemperature - 273.15);
 
-	callback(objectTemperature, ambientTemperature);
+    callback(objectTemperature, ambientTemperature);
 };
 
 SensorTag.prototype.notifyIrTemperature = function (callback) {
@@ -390,15 +400,19 @@ SensorTag.prototype.onAccelerometerChange = function (data) {
 };
 
 SensorTag.prototype.convertAccelerometerData = function (data, callback) {
-	var accelerometerFactor;
+	var accelerometerFactor,
+        x,
+        y,
+        z;
 	if (this._fwVersion >= 1.4) {
 		accelerometerFactor = 16;
 	} else {
 		accelerometerFactor = 4;
 	}
-	var x = data.readInt8(0) * accelerometerFactor / 256.0;
-	var y = data.readInt8(1) * accelerometerFactor / 256.0;
-	var z = data.readInt8(2) * accelerometerFactor / 256.0;
+
+    x = data.readInt8(0) * accelerometerFactor / 256.0;
+	y = data.readInt8(1) * accelerometerFactor / 256.0;
+	z = data.readInt8(2) * accelerometerFactor / 256.0;
 
 	callback(x, y, z);
 };
