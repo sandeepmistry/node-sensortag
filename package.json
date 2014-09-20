@@ -19,7 +19,7 @@
   "readmeFilename": "README.md",
   "gitHead": "8079ce586d6853dd70ffbe24c9a2169d6818d23b",
   "dependencies": {
-    "noble": "~0.2.0"
+    "noble": "~0.3.5"
   },
   "devDependencies": {
     "async": "~0.2.7",
