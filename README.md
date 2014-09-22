@@ -154,11 +154,13 @@ Notify/Unnotify:
 
 __Gyroscope__
 
-Enable/disable:
+Enable/disable/configure:
 
     sensorTag.enableGyroscope(callback);
 
     sensorTag.disableGyroscope(callback);
+    
+    sensorTag.setGyroscopePeriod(period, callback); // period 100 - 2550 ms, default period is 1000 ms
 
 Read:
 
