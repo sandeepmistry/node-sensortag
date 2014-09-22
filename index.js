@@ -86,7 +86,7 @@ SensorTag.discover = function(callback, uuid) {
 
       noble.on('discover', onDiscover);
 
-      noble.startScanning();
+      noble.startScanning([],true);
     } else {
       noble.once('stateChange', startScanningOnPowerOn);
     }
