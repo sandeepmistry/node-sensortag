@@ -56,6 +56,7 @@ var BAROMETRIC_PRESSURE_CALIBRATION_UUID    = 'f000aa4304514000b000000000000000'
 
 var GYROSCOPE_CONFIG_UUID                   = 'f000aa5204514000b000000000000000';
 var GYROSCOPE_DATA_UUID                     = 'f000aa5104514000b000000000000000';
+var GYROSCOPE_PERIOD_UUID                   = 'f000aa5304514000b000000000000000';
 
 var SIMPLE_KEY_DATA_UUID                    = 'ffe1';
 
@@ -457,6 +458,10 @@ SensorTag.prototype.notifyBarometricPressure = function(callback) {
 
 SensorTag.prototype.unnotifyBarometricPressure = function(callback) {
   this.notifyCharacteristic(BAROMETRIC_PRESSURE_DATA_UUID, false, this.onBarometricPressureChange.bind(this), callback);
+};
+
+SensorTag.prototype.setGyroscopePeriod = function(period, callback) {
+	this.writePeriodCharacteristic(GYROSCOPE_PERIOD_UUID, period, callback);
 };
 
 SensorTag.prototype.enableGyroscope = function(callback) {
