@@ -197,7 +197,7 @@ SensorTag.prototype.readSystemId = function(callback) {
       data.readUInt8(3).toString(16),
       data.readUInt8(2).toString(16),
       data.readUInt8(2).toString(16),
-      data.readUInt8(0).toString(16)    
+      data.readUInt8(0).toString(16)
     ].join(':');
 
     callback(systemId);
@@ -250,7 +250,7 @@ SensorTag.prototype.onIrTemperatureChange = function(data) {
 
 SensorTag.prototype.convertIrTemperatureData = function(data, callback) {
   // For computation refer :  http://processors.wiki.ti.com/index.php/SensorTag_User_Guide#IR_Temperature_Sensor
-  
+
   var ambientTemperature = data.readInt16LE(2) / 128.0;
 
   var Vobj2 = data.readInt16LE(0) * 0.00000015625;
@@ -439,10 +439,10 @@ SensorTag.prototype.convertBarometricPressureData = function(data, callback) {
   var c5 = this._barometricPressureCalibrationData.readInt16LE(10);
   var c6 = this._barometricPressureCalibrationData.readInt16LE(12);
   var c7 = this._barometricPressureCalibrationData.readInt16LE(14);
-  
+
   temp = data.readInt16LE(0);
   pressure = data.readUInt16LE(2);
-  
+
   S = c2 + ((c3 * temp)/ 131072.0) + ((c4 * (temp * temp)) / 17179869184.0);
   O = (c5 * 16384.0) + (((c6 * temp) / 8)) + ((c7 * (temp * temp)) / 524288.0);
   Pa = (((S * pressure) + O) / 16384.0);
@@ -461,7 +461,7 @@ SensorTag.prototype.unnotifyBarometricPressure = function(callback) {
 };
 
 SensorTag.prototype.setGyroscopePeriod = function(period, callback) {
-	this.writePeriodCharacteristic(GYROSCOPE_PERIOD_UUID, period, callback);
+  this.writePeriodCharacteristic(GYROSCOPE_PERIOD_UUID, period, callback);
 };
 
 SensorTag.prototype.enableGyroscope = function(callback) {
