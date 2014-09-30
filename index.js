@@ -429,6 +429,7 @@ SensorTag.prototype.convertBarometricPressureData = function(data, callback) {
   var S;        // Interim value in calculation
   var O;        // Interim value in calculation
   var p_a;      // Pressure actual value in unit Pascal.
+  var Pa;       // Computed value of the function
 
   var c0 = this._barometricPressureCalibrationData.readUInt16LE(0);
   var c1 = this._barometricPressureCalibrationData.readUInt16LE(2);
