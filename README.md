@@ -55,6 +55,8 @@ Enable/disable:
     sensorTag.enableIrTemperature(callback);
 
     sensorTag.disableIrTemperature(callback);
+    
+    sensorTag.setIrTemperaturePeriod(period, callback); // period min 300ms, default period is 1000 ms
 
 Read:
 
