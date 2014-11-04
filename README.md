@@ -28,6 +28,10 @@ __Disconnect__
 
     sensorTag.disconnect(callback);
 
+__Reconnect__
+Tries to reconnect sensortag when connection drops
+    sensorTag.reconnect(callback);
+
 __Discover Services and Characteristics__
 
     sensorTag.discoverServicesAndCharacteristics(callback);
@@ -195,3 +199,18 @@ Notify/Unnotify:
     sensorTag.unnotifyBatteryLevel(callback);
 
     sensorTag.on('batteryLevelChange', callback(level));    
+
+__Emitted events__
+
+ * 'connect'
+ * 'discconnect'
+ * 'connectionDrop'
+ * 'reconnect'
+ * 'irTemperatureChange'
+ * 'accelerometerChange'
+ * 'humidityChange'
+ * 'magnetometerChange'
+ * 'barometricPressureChange'
+ * 'gyroscopeChange'
+ * 'simpleKeyChange'
+ * 'batteryLevelChange'

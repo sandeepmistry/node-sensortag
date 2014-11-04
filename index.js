@@ -122,9 +122,6 @@ SensorTag.discover = function (callback, uuid) {
 };
 
 SensorTag.prototype.onConnectionDrop = function () {
-	//Reconnect in all cases 
-	debug('connection dropped - reconnect');
-	this._peripheral.reconnect();
 	this.emit('connectionDrop');
 };
 
@@ -182,6 +179,10 @@ SensorTag.prototype.disconnect = function (callback) {
 	this._writtenCharacteristics = {};
 
 	this._peripheral.disconnect(callback);
+};
+
+SensorTag.prototype.reconnect = function (callback) {
+	this._peripheral.reconnect(callback);
 };
 
 SensorTag.prototype.discoverServicesAndCharacteristics = function (callback) {
@@ -538,7 +539,7 @@ SensorTag.prototype.convertBarometricPressureData = function (data, callback) {
 	//var t_a; 	// Temperature actual value in unit centi degrees celsius
 	var S; // Interim value in calculation
 	var O; // Interim value in calculation
-	var p_a; // Pressure actual value in unit Pascal.
+	var pA; // Pressure actual value in unit Pascal.
 	var c0 = this._barometricPressureCalibrationData.readUInt16LE(0);
 	var c1 = this._barometricPressureCalibrationData.readUInt16LE(2);
 	var c2 = this._barometricPressureCalibrationData.readUInt16LE(4);
@@ -555,11 +556,11 @@ SensorTag.prototype.convertBarometricPressureData = function (data, callback) {
 	//var t_a = (100.0 * (c0 * temp / 256.0 + c1* 64.0)) / 65536.0;
 	S = c2 + ((c3 * temp) / 131072.0) + ((c4 * (temp * temp)) / 17179869184.0);
 	O = (c5 * 16384.0) + (((c6 * temp) / 8)) + ((c7 * (temp * temp)) / 524288.0);
-	Pa = (((S * pressure) + O) / 16384.0);
+	pA = (((S * pressure) + O) / 16384.0);
 
-	Pa /= 100.0;
+	pA /= 100.0;
 
-	callback(Pa);
+	callback(pA);
 };
 
 SensorTag.prototype.notifyBarometricPressure = function (callback) {

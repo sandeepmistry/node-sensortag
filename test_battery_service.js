@@ -12,7 +12,8 @@ SensorTag.discover(function(sensorTag) {
   });
   
   sensorTag.on('connectionDrop', function() {
-    console.log('connection drop!');
+    console.log('connection drop! - reconnect');
+    sensorTag.reconnect();
   });
   
   sensorTag.on('reconnect', function() {
