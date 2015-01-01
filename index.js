@@ -77,7 +77,7 @@ SensorTag.discover = function(callback, uuid) {
   var startScanningOnPowerOn = function() {
     if (noble.state === 'poweredOn') {
       var onDiscover = function(peripheral) {
-        if (peripheral.advertisement.localName === 'SensorTag' &&
+        if ((peripheral.advertisement.localName === 'SensorTag' || peripheral.advertisement.localName === 'TI BLE Sensor Tag') &&
             (uuid === undefined || uuid === peripheral.uuid)) {
           noble.removeListener('discover', onDiscover);
           noble.stopScanning();
