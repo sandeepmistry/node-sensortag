@@ -126,33 +126,45 @@ SensorTag.prototype.onConnectionDrop = function () {
 };
 
 SensorTag.prototype.onReconnectAfterCharsDiscovery = function () {
-	this.restoreCharsAndNotifs(function () {});
-	this.emit('reconnect');
+	this.restoreCharsAndNotifs(function () {
+		this.emit('reconnect');
+	}.bind(this));
 };
 
-SensorTag.prototype.onReconnectDuringCharsDiscovery = function (callback) {
-	this.discoverServicesAndCharacteristics(callback);
-	this.emit('reconnect');
+SensorTag.prototype.onReconnectDuringCharsDiscovery = function () {
+	this.discoverServicesAndCharacteristics(function(){
+		this.emit('reconnect');
+	}.bind(this));
 };
 
-SensorTag.prototype.restoreCharsAndNotifs = function () {
-	var emptyFunc = function () {},
-		char_uuid,
-		char_index;
+SensorTag.prototype.restoreCharsAndNotifs = function (callback) {
+	var char_index;
 	debug('restore sensor tag written characteristics and notifications after connection drop');
 
-	//Try to restore written characteristics - listener have already been registered
-	for (char_uuid in this._writtenCharacteristics) {
-		if (this._writtenCharacteristics.hasOwnProperty(char_uuid)) {
-			this._characteristics[char_uuid].write(this._writtenCharacteristics[char_uuid], false, emptyFunc);
+	var loopIndex = 0;
+	var iterateOverChars = function(){
+		if(loopIndex < Object.keys(this._writtenCharacteristics).length){
+			this._characteristics[Object.keys(this._writtenCharacteristics)[loopIndex]].write(this._writtenCharacteristics[Object.keys(this._writtenCharacteristics)[loopIndex]], false, iterateOverChars);
+			loopIndex++;
 		}
-	}
+		else{
+			// now restore enabled notifications
+			char_index = 0;
+			restoreEnabledNotif()
+		}
+	}.bind(this);
 
-	//Try to restore enabled notifications
-	for (char_index = 0; char_index < this._enabledNotifications.length; char_index++) {
-		this._enabledNotifications[char_index].notify(true, emptyFunc);
-	}
-	this.emit('reconnect');
+	var restoreEnabledNotif = function(){
+		if(char_index < this._enabledNotifications.length){
+			this._enabledNotifications[char_index].notify(true, restoreEnabledNotif);
+			char_index++;
+		}
+		else{
+			callback();
+		}
+	}.bind(this);
+
+	iterateOverChars(callback);
 };
 
 SensorTag.prototype.onDisconnect = function () {
