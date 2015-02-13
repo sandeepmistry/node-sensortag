@@ -20,13 +20,13 @@ SensorTag.discover(function(sensorTag) {
         console.log('discoverServicesAndCharacteristics');
         sensorTag.discoverServicesAndCharacteristics(callback);
       },
-      function(callback) {
-        console.log('readDeviceName');
-        sensorTag.readDeviceName(function(deviceName) {
-          console.log('\tdevice name = ' + deviceName);
-          callback();
-        });
-      },
+      // function(callback) {
+      //   console.log('readDeviceName');
+      //   sensorTag.readDeviceName(function(deviceName) {
+      //     console.log('\tdevice name = ' + deviceName);
+      //     callback();
+      //   });
+      // },
       function(callback) {
         console.log('readSystemId');
         sensorTag.readSystemId(function(systemId) {
