@@ -245,6 +245,22 @@ SensorTag.discover(function(sensorTag) {
         sensorTag.disableGyroscope(callback);
       },
       function(callback) {
+        console.log('readTestData');
+        sensorTag.readTestData(function(data) {
+          console.log('\tdata = ' + data);
+
+          callback();
+        });
+      },
+      function(callback) {
+        console.log('readTestConfiguration');
+        sensorTag.readTestConfiguration(function(configuration) {
+          console.log('\tconfiguration = ' + configuration);
+
+          callback();
+        });
+      },
+      function(callback) {
         console.log('readSimpleRead');
         sensorTag.on('simpleKeyChange', function(left, right) {
           console.log('left: ' + left);

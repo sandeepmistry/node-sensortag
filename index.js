@@ -59,6 +59,9 @@ var GYROSCOPE_CONFIG_UUID                   = 'f000aa5204514000b000000000000000'
 var GYROSCOPE_DATA_UUID                     = 'f000aa5104514000b000000000000000';
 var GYROSCOPE_PERIOD_UUID                   = 'f000aa5304514000b000000000000000';
 
+var TEST_DATA_UUID                          = 'f000aa6104514000b000000000000000';
+var TEST_CONFIGURATION_UUID                 = 'f000aa6204514000b000000000000000';
+
 var SIMPLE_KEY_DATA_UUID                    = 'ffe1';
 
 function SensorTag(peripheral) {
@@ -543,6 +546,18 @@ SensorTag.prototype.notifySimpleKey = function(callback) {
 
 SensorTag.prototype.unnotifySimpleKey = function(callback) {
   this.notifyCharacteristic(SIMPLE_KEY_DATA_UUID, false, this.onSimpleKeyChange.bind(this), callback);
+};
+
+SensorTag.prototype.readTestData = function(callback) {
+  this.readDataCharacteristic(TEST_DATA_UUID, function(data) {
+    callback(data.readUInt16LE(0));
+  }.bind(this));
+};
+
+SensorTag.prototype.readTestConfiguration = function(callback) {
+  this.readDataCharacteristic(TEST_CONFIGURATION_UUID, function(data) {
+    callback(data.readUInt8(0));
+  }.bind(this));
 };
 
 module.exports = SensorTag;
