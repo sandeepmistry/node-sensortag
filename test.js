@@ -4,6 +4,8 @@ var async = require('async');
 
 var SensorTag = require('./index');
 
+console.log ("scanning...");
+
 SensorTag.discover(function(sensorTag) {
 
   sensorTag.on('disconnect', function() {
@@ -13,7 +15,7 @@ SensorTag.discover(function(sensorTag) {
 
   async.series([
       function(callback) {
-        console.log('connect');
+        console.log('connecting...');
         sensorTag.connect(callback);
       },
       function(callback) {
@@ -261,7 +263,7 @@ SensorTag.discover(function(sensorTag) {
         });
       },
       function(callback) {
-        console.log('readSimpleRead');
+        console.log('readSimpleRead, press both buttons on your SensorTag');
         sensorTag.on('simpleKeyChange', function(left, right) {
           console.log('left: ' + left);
           console.log('right: ' + right);
@@ -279,6 +281,8 @@ SensorTag.discover(function(sensorTag) {
         console.log('disconnect');
         sensorTag.disconnect(callback);
       }
-    ]
+    ], function (error) {
+      console.warn (error.stack)
+    }
   );
 });
