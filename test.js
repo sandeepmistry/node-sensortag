@@ -4,9 +4,13 @@ var async = require('async');
 
 var SensorTag = require('./index');
 
-console.log ("scanning...");
+console.log ("scanning, please connect");
 
-SensorTag.discover(function(sensorTag) {
+SensorTag.discover(function(error,sensorTag) {
+  if (error) {
+    console.warn (error.stack);
+    process.exit(0);
+  }
 
   sensorTag.on('disconnect', function() {
     console.log('disconnected!');
