@@ -78,6 +78,9 @@ util.inherits(SensorTag, events.EventEmitter);
 
 SensorTag.discover = function(callback, uuid) {
   var startScanningOnPowerOn = function() {
+    if (/unsupported|unauthorized/.test (noble.state)) {
+       callback (new Error ('ble adapter error ('+noble.state + ')'))
+    }
     if (noble.state === 'poweredOn') {
       var onDiscover = function(peripheral) {
         if ((peripheral.advertisement.localName === 'SensorTag' || peripheral.advertisement.localName === 'TI BLE Sensor Tag') &&
@@ -85,7 +88,7 @@ SensorTag.discover = function(callback, uuid) {
           noble.removeListener('discover', onDiscover);
           noble.stopScanning();
           var sensorTag = new SensorTag(peripheral);
-          callback(sensorTag);
+          callback(null, sensorTag);
         }
       };
 
