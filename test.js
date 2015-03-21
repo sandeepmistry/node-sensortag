@@ -175,31 +175,31 @@ SensorTag.discover(function(sensorTag) {
       //   console.log('disableMagnetometer');
       //   sensorTag.disableMagnetometer(callback);
       // },
-      // function(callback) {
-      //   console.log('enableBarometricPressure');
-      //   sensorTag.enableBarometricPressure(callback);
-      // },
-      // function(callback) {
-      //   setTimeout(callback, 1000);
-      // },
-      // function(callback) {
-      //   console.log('readBarometricPressure');
-      //   sensorTag.readBarometricPressure(function(error, pressure) {
-      //     console.log('\tpressure = %d mBar', pressure.toFixed(1));
+      function(callback) {
+        console.log('enableBarometricPressure');
+        sensorTag.enableBarometricPressure(callback);
+      },
+      function(callback) {
+        setTimeout(callback, 1000);
+      },
+      function(callback) {
+        console.log('readBarometricPressure');
+        sensorTag.readBarometricPressure(function(error, pressure) {
+          console.log('\tpressure = %d mBar', pressure.toFixed(1));
 
-      //     callback();
-      //   });
+          callback();
+        });
 
-      //   // sensorTag.on('barometricPressureChange', function(pressure) {
-      //   //   console.log('\tpressure = %d mBar', pressure.toFixed(1));
-      //   // });
+        // sensorTag.on('barometricPressureChange', function(pressure) {
+        //   console.log('\tpressure = %d mBar', pressure.toFixed(1));
+        // });
 
-      //   // sensorTag.notifyBarometricPressure();
-      // },
-      // function(callback) {
-      //   console.log('disableBarometricPressure');
-      //   sensorTag.disableBarometricPressure(callback);
-      // },
+        // sensorTag.notifyBarometricPressure();
+      },
+      function(callback) {
+        console.log('disableBarometricPressure');
+        sensorTag.disableBarometricPressure(callback);
+      },
       // function(callback) {
       //   console.log('enableGyroscope');
       //   sensorTag.enableGyroscope(callback);
