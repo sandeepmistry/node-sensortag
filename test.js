@@ -13,58 +13,54 @@ SensorTag.discover(function(sensorTag) {
 
   async.series([
       function(callback) {
-        console.log('connect');
-        sensorTag.connect(callback);
+        console.log('connectAndSetup');
+        sensorTag.connectAndSetup(callback);
       },
       function(callback) {
-        console.log('discoverServicesAndCharacteristics');
-        sensorTag.discoverServicesAndCharacteristics(callback);
+        console.log('readDeviceName');
+        sensorTag.readDeviceName(function(error, deviceName) {
+          console.log('\tdevice name = ' + deviceName);
+          callback();
+        });
       },
-      // function(callback) {
-      //   console.log('readDeviceName');
-      //   sensorTag.readDeviceName(function(deviceName) {
-      //     console.log('\tdevice name = ' + deviceName);
-      //     callback();
-      //   });
-      // },
       function(callback) {
         console.log('readSystemId');
-        sensorTag.readSystemId(function(systemId) {
+        sensorTag.readSystemId(function(error, systemId) {
           console.log('\tsystem id = ' + systemId);
           callback();
         });
       },
       function(callback) {
         console.log('readSerialNumber');
-        sensorTag.readSerialNumber(function(serialNumber) {
+        sensorTag.readSerialNumber(function(error, serialNumber) {
           console.log('\tserial number = ' + serialNumber);
           callback();
         });
       },
       function(callback) {
         console.log('readFirmwareRevision');
-        sensorTag.readFirmwareRevision(function(firmwareRevision) {
+        sensorTag.readFirmwareRevision(function(error, firmwareRevision) {
           console.log('\tfirmware revision = ' + firmwareRevision);
           callback();
         });
       },
       function(callback) {
         console.log('readHardwareRevision');
-        sensorTag.readHardwareRevision(function(hardwareRevision) {
+        sensorTag.readHardwareRevision(function(error, hardwareRevision) {
           console.log('\thardware revision = ' + hardwareRevision);
           callback();
         });
       },
       function(callback) {
         console.log('readSoftwareRevision');
-        sensorTag.readHardwareRevision(function(softwareRevision) {
+        sensorTag.readHardwareRevision(function(error, softwareRevision) {
           console.log('\tsoftware revision = ' + softwareRevision);
           callback();
         });
       },
       function(callback) {
         console.log('readManufacturerName');
-        sensorTag.readManufacturerName(function(manufacturerName) {
+        sensorTag.readManufacturerName(function(error, manufacturerName) {
           console.log('\tmanufacturer name = ' + manufacturerName);
           callback();
         });
@@ -78,7 +74,7 @@ SensorTag.discover(function(sensorTag) {
       },
       function(callback) {
         console.log('readIrTemperature');
-        sensorTag.readIrTemperature(function(objectTemperature, ambientTemperature) {
+        sensorTag.readIrTemperature(function(error, objectTemperature, ambientTemperature) {
           console.log('\tobject temperature = %d °C', objectTemperature.toFixed(1));
           console.log('\tambient temperature = %d °C', ambientTemperature.toFixed(1));
 
@@ -90,13 +86,11 @@ SensorTag.discover(function(sensorTag) {
         //   console.log('\tambient temperature = %d °C', ambientTemperature.toFixed(1))
         // });
 
-        // sensorTag.notifyIrTemperature(function() {
-
-        // });
+        // sensorTag.notifyIrTemperature();
       },
       function(callback) {
-        console.log('disableAccelerometer');
-        sensorTag.disableAccelerometer(callback);
+        console.log('disableIrTemperature');
+        sensorTag.disableIrTemperature(callback);
       },
       function(callback) {
         console.log('enableAccelerometer');
@@ -107,7 +101,7 @@ SensorTag.discover(function(sensorTag) {
       },
       function(callback) {
         console.log('readAccelerometer');
-        sensorTag.readAccelerometer(function(x, y, z) {
+        sensorTag.readAccelerometer(function(error, x, y, z) {
           console.log('\tx = %d G', x.toFixed(1));
           console.log('\ty = %d G', y.toFixed(1));
           console.log('\tz = %d G', z.toFixed(1));
@@ -121,9 +115,7 @@ SensorTag.discover(function(sensorTag) {
         //   console.log('\tz = %d G', z.toFixed(1));
         // });
 
-        // sensorTag.notifyAccelerometer(function() {
-
-        // });
+        // sensorTag.notifyAccelerometer();
       },
       function(callback) {
         console.log('disableAccelerometer');
@@ -135,7 +127,7 @@ SensorTag.discover(function(sensorTag) {
       },
       function(callback) {
         console.log('readHumidity');
-        sensorTag.readHumidity(function(temperature, humidity) {
+        sensorTag.readHumidity(function(error, temperature, humidity) {
           console.log('\ttemperature = %d °C', temperature.toFixed(1));
           console.log('\thumidity = %d %', humidity.toFixed(1));
 
@@ -147,9 +139,7 @@ SensorTag.discover(function(sensorTag) {
         //   console.log('\thumidity = %d %', humidity.toFixed(1));
         // });
 
-        // sensorTag.notifyHumidity(function() {
-
-        // });
+        // sensorTag.notifyHumidity();
       },
       function(callback) {
         console.log('disableHumidity');
@@ -164,7 +154,7 @@ SensorTag.discover(function(sensorTag) {
       },
       function(callback) {
         console.log('readMagnetometer');
-        sensorTag.readMagnetometer(function(x, y, z) {
+        sensorTag.readMagnetometer(function(error, x, y, z) {
           console.log('\tx = %d μT', x.toFixed(1));
           console.log('\ty = %d μT', y.toFixed(1));
           console.log('\tz = %d μT', z.toFixed(1));
@@ -172,15 +162,13 @@ SensorTag.discover(function(sensorTag) {
           callback();
         });
 
-        // sensorTag.on('magnetometerChange', function(x, y, z) {
-        //   console.log('\tx = %d μT', x.toFixed(1));
-        //   console.log('\ty = %d μT', y.toFixed(1));
-        //   console.log('\tz = %d μT', z.toFixed(1));
-        // });
+        sensorTag.on('magnetometerChange', function(x, y, z) {
+          console.log('\tx = %d μT', x.toFixed(1));
+          console.log('\ty = %d μT', y.toFixed(1));
+          console.log('\tz = %d μT', z.toFixed(1));
+        });
 
-        // sensorTag.notifyMagnetometer(function() {
-
-        // });
+        sensorTag.notifyMagnetometer();
       },
       function(callback) {
         console.log('disableMagnetometer');
@@ -195,7 +183,7 @@ SensorTag.discover(function(sensorTag) {
       },
       function(callback) {
         console.log('readBarometricPressure');
-        sensorTag.readBarometricPressure(function(pressure) {
+        sensorTag.readBarometricPressure(function(error, pressure) {
           console.log('\tpressure = %d mBar', pressure.toFixed(1));
 
           callback();
@@ -205,9 +193,7 @@ SensorTag.discover(function(sensorTag) {
         //   console.log('\tpressure = %d mBar', pressure.toFixed(1));
         // });
 
-        // sensorTag.notifyBarometricPressure(function() {
-
-        // });
+        // sensorTag.notifyBarometricPressure();
       },
       function(callback) {
         console.log('disableBarometricPressure');
@@ -222,7 +208,7 @@ SensorTag.discover(function(sensorTag) {
       },
       function(callback) {
         console.log('readGyroscope');
-        sensorTag.readGyroscope(function(x, y, z) {
+        sensorTag.readGyroscope(function(error, x, y, z) {
           console.log('\tx = %d °/s', x.toFixed(1));
           console.log('\ty = %d °/s', y.toFixed(1));
           console.log('\tz = %d °/s', z.toFixed(1));
@@ -236,9 +222,7 @@ SensorTag.discover(function(sensorTag) {
         //   console.log('\tz = %d °/s', z.toFixed(1));
         // });
 
-        // sensorTag.notifyGyroscope(function() {
-
-        // });
+        // sensorTag.notifyGyroscope();
       },
       function(callback) {
         console.log('disableGyroscope');
@@ -246,7 +230,7 @@ SensorTag.discover(function(sensorTag) {
       },
       function(callback) {
         console.log('readTestData');
-        sensorTag.readTestData(function(data) {
+        sensorTag.readTestData(function(error, data) {
           console.log('\tdata = ' + data);
 
           callback();
@@ -254,7 +238,7 @@ SensorTag.discover(function(sensorTag) {
       },
       function(callback) {
         console.log('readTestConfiguration');
-        sensorTag.readTestConfiguration(function(configuration) {
+        sensorTag.readTestConfiguration(function(error, configuration) {
           console.log('\tconfiguration = ' + configuration);
 
           callback();
@@ -271,9 +255,7 @@ SensorTag.discover(function(sensorTag) {
           }
         });
 
-        sensorTag.notifySimpleKey(function() {
-
-        });
+        sensorTag.notifySimpleKey();
       },
       function(callback) {
         console.log('disconnect');

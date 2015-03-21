@@ -20,16 +20,13 @@ var SensorTag = require('sensortag');
 ### Discover
 
 ```javascript
-SensorTag.discover(callback(sensorTag)[, uuid]);
+SensorTag.discover(callback(sensorTag));
 ```
 
-Optional SensorTag ```uuid``` to scan for, obtained from previous discover ```sensorTag.uuid```.
-The ```uuid``` per SensorTag may not be the same across machines. 
-
-### Connect
+### Connect and Setup
 
 ```javascript
-sensorTag.connect(callback);
+sensorTag.connectAndSetup(callback(error));
 ```
 
 ### Disconnect
@@ -38,28 +35,22 @@ sensorTag.connect(callback);
 sensorTag.disconnect(callback);
 ```
 
-### Discover Services and Characteristics
-
-```javascript
-sensorTag.discoverServicesAndCharacteristics(callback);
-```
-
 ### Device Info
 
 ```javascript
-sensorTag.readDeviceName(callback(deviceName)); // does not work on OS X 10.10
+sensorTag.readDeviceName(callback(error, deviceName)); // does not work on OS X 10.10
 
-sensorTag.readSystemId(callback(systemId));
+sensorTag.readSystemId(callback(error, systemId));
 
-sensorTag.readSerialNumber(callback(serialNumber));
+sensorTag.readSerialNumber(callback(error, serialNumber));
 
-sensorTag.readFirmwareRevision(callback(firmwareRevision));
+sensorTag.readFirmwareRevision(callback(error, firmwareRevision));
 
-sensorTag.readHardwareRevision(callback(hardwareRevision));
+sensorTag.readHardwareRevision(callback(error, hardwareRevision));
 
-sensorTag.readSoftwareRevision(callback(softwareRevision));
+sensorTag.readSoftwareRevision(callback(error, softwareRevision));
 
-sensorTag.readManufacturerName(callback(manufacturerName));
+sensorTag.readManufacturerName(callback(error, manufacturerName));
 ```
 
 ### IR Temperature Sensor
@@ -67,25 +58,25 @@ sensorTag.readManufacturerName(callback(manufacturerName));
 #### Enable/disable
 
 ```javascript
-sensorTag.enableIrTemperature(callback);
+sensorTag.enableIrTemperature(callback(error));
 
-sensorTag.disableIrTemperature(callback);
+sensorTag.disableIrTemperature(callback(error));
 
-sensorTag.setIrTemperaturePeriod(period, callback); // period min 300ms, default period is 1000 ms
+sensorTag.setIrTemperaturePeriod(period, callback(error)); // period min 300ms, default period is 1000 ms
 ```
 
 #### Read
 
 ```javascript
-sensorTag.readIrTemperature(callback(objectTemperature, ambientTemperature));
+sensorTag.readIrTemperature(callback(error, objectTemperature, ambientTemperature));
 ```
 
 #### Notify/Unnotify
 
 ```javascript
-sensorTag.notifyIrTemperature(callback);
+sensorTag.notifyIrTemperature(callback(error));
 
-sensorTag.unnotifyIrTemperature(callback);
+sensorTag.unnotifyIrTemperature(callback(error));
 
 sensorTag.on('irTemperatureChange', callback(objectTemperature, ambientTemperature));
 ```
@@ -95,25 +86,25 @@ sensorTag.on('irTemperatureChange', callback(objectTemperature, ambientTemperatu
 #### Enable/disable/configure
 
 ```javascript
-sensorTag.enableAccelerometer(callback);
+sensorTag.enableAccelerometer(callback(error));
 
-sensorTag.disableAccelerometer(callback);
+sensorTag.disableAccelerometer(callback(error));
 
-sensorTag.setAccelerometerPeriod(period, callback); // period 1 - 2550 ms, default period is 2000 ms
+sensorTag.setAccelerometerPeriod(period, callback(error)); // period 1 - 2550 ms, default period is 2000 ms
 ```
 
 #### Read
 
 ```javascript
-sensorTag.readAccelerometer(callback(x, y, z));
+sensorTag.readAccelerometer(callback(error, x, y, z));
 ```
 
 #### Notify/Unnotify
 
 ```javascript
-sensorTag.notifyAccelerometer(callback);
+sensorTag.notifyAccelerometer(callback(error));
 
-sensorTag.unnotifyAccelerometer(callback);
+sensorTag.unnotifyAccelerometer(callback(error));
 
 sensorTag.on('accelerometerChange', callback(x, y, z));
 ```
@@ -123,23 +114,23 @@ sensorTag.on('accelerometerChange', callback(x, y, z));
 #### Enable/disable
 
 ```javascript
-sensorTag.enableHumidity(callback);
+sensorTag.enableHumidity(callback(error));
 
-sensorTag.disableHumidity(callback);
+sensorTag.disableHumidity(callback(error));
 ```
 
 #### Read
 
 ```javascript
-sensorTag.readHumidity(callback(temperature, humidity));
+sensorTag.readHumidity(callback(error, temperature, humidity));
 ```
 
 #### Notify/Unnotify
 
 ```javascript
-sensorTag.notifyHumidity(callback);
+sensorTag.notifyHumidity(callback(error));
 
-sensorTag.unnotifyHumidity(callback);
+sensorTag.unnotifyHumidity(callback(error));
 
 sensorTag.on('humidityChange', callback(temperature, humidity));
 ```
@@ -149,25 +140,25 @@ sensorTag.on('humidityChange', callback(temperature, humidity));
 #### Enable/disable
 
 ```javascript
-sensorTag.enableMagnetometer(callback);
+sensorTag.enableMagnetometer(callback(error));
 
-sensorTag.disableMagnetometer(callback);
+sensorTag.disableMagnetometer(callback(error));
 
-sensorTag.setMagnetometerPeriod(period, callback); // period 1 - 2550 ms, default period is 2000 ms
+sensorTag.setMagnetometerPeriod(period, callback(error)); // period 1 - 2550 ms, default period is 2000 ms
 ```
 
 #### Read
 
 ```javascript
-sensorTag.readMagnetometer(callback(x, y, z));
+sensorTag.readMagnetometer(callback(error, x, y, z));
 ```
 
 #### Notify/Unnotify
 
 ```javascript
-sensorTag.notifyMagnetometer(callback);
+sensorTag.notifyMagnetometer(callback(error));
 
-sensorTag.unnotifyMagnetometer(callback);
+sensorTag.unnotifyMagnetometer(callback(error));
 
 sensorTag.on('magnetometerChange', callback(x, y, z));
 ```
@@ -177,23 +168,23 @@ sensorTag.on('magnetometerChange', callback(x, y, z));
 #### Enable/disable
 
 ```javascript
-sensorTag.enableBarometricPressure(callback);
+sensorTag.enableBarometricPressure(callback(error));
 
-sensorTag.disableBarometricPressure(callback);
+sensorTag.disableBarometricPressure(callback(error));
 ```
 
 #### Read
 
 ```javascript
-sensorTag.readBarometricPressure(callback(pressure));
+sensorTag.readBarometricPressure(callback(error, pressure));
 ```
 
 #### Notify/Unnotify
 
 ```javascript
-sensorTag.notifyBarometricPressure(callback);
+sensorTag.notifyBarometricPressure(callback(error));
 
-sensorTag.unnotifyBarometricPressure(callback);
+sensorTag.unnotifyBarometricPressure(callback(error));
 
 sensorTag.on('barometricPressureChange', callback(pressure));
 ```
@@ -203,25 +194,25 @@ sensorTag.on('barometricPressureChange', callback(pressure));
 #### Enable/disable/configure
 
 ```javascript
-sensorTag.enableGyroscope(callback);
+sensorTag.enableGyroscope(callback(error));
 
-sensorTag.disableGyroscope(callback);
+sensorTag.disableGyroscope(callback(error));
 
-sensorTag.setGyroscopePeriod(period, callback); // period 100 - 2550 ms, default period is 1000 ms
+sensorTag.setGyroscopePeriod(period, callback(error)); // period 100 - 2550 ms, default period is 1000 ms
 ```
 
 #### Read
 
 ```javascript
-sensorTag.readGyroscope(callback(x, y, z));
+sensorTag.readGyroscope(callback(error, x, y, z));
 ```
 
 #### Notify/Unnotify
 
 ```javascript
-sensorTag.notifyGyroscope(callback);
+sensorTag.notifyGyroscope(callback(error));
 
-sensorTag.unnotifyGyroscope(callback);
+sensorTag.unnotifyGyroscope(callback(error));
 
 sensorTag.on('gyroscopeChange', callback(x, y, z));
 ```
@@ -231,11 +222,11 @@ sensorTag.on('gyroscopeChange', callback(x, y, z));
 #### Notify/Unnotify
 
 ```javascript
-sensorTag.notifySimpleKey(callback);
+sensorTag.notifySimpleKey(callback(error));
 
-sensorTag.unnotifySimpleKey(callback);
+sensorTag.unnotifySimpleKey(callback(error));
 
 sensorTag.on('simpleKeyChange', callback(left, right));
 ```
-    
+
 [![Analytics](https://ga-beacon.appspot.com/UA-56089547-1/sandeepmistry/node-sensortag?pixel)](https://github.com/igrigorik/ga-beacon)
