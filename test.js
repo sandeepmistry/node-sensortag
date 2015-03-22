@@ -232,22 +232,64 @@ SensorTag.discover(function(sensorTag) {
         console.log('disableGyroscope');
         sensorTag.disableGyroscope(callback);
       },
-      // function(callback) {
-      //   console.log('readTestData');
-      //   sensorTag.readTestData(function(error, data) {
-      //     console.log('\tdata = ' + data);
+      function(callback) {
+        if (sensorTag.type === 'cc2540') {
+          async.series([
+            function(callback) {
+              console.log('readTestData');
+              sensorTag.readTestData(function(error, data) {
+                console.log('\tdata = ' + data);
 
-      //     callback();
-      //   });
-      // },
-      // function(callback) {
-      //   console.log('readTestConfiguration');
-      //   sensorTag.readTestConfiguration(function(error, configuration) {
-      //     console.log('\tconfiguration = ' + configuration);
+                callback();
+              });
+            },
+            function(callback) {
+              console.log('readTestConfiguration');
+              sensorTag.readTestConfiguration(function(error, configuration) {
+                console.log('\tconfiguration = ' + configuration);
 
-      //     callback();
-      //   });
-      // },
+                callback();
+              });
+            },
+            function() {
+              callback();
+            }
+          ]);
+        } else if (sensorTag.type === 'cc2650') {
+          async.series([
+            function(callback) {
+              console.log('enableLuxometer');
+              sensorTag.enableLuxometer(callback);
+            },
+            function(callback) {
+              setTimeout(callback, 2000);
+            },
+            function(callback) {
+              console.log('readLuxometer');
+              sensorTag.readLuxometer(function(error, lux) {
+                console.log('\tlux = %d', lux.toFixed(1));
+
+                callback();
+              });
+
+              // sensorTag.on('luxometerChange', function(lux) {
+              //   console.log('\tlux = %d', lux.toFixed(1));
+              // });
+
+              // sensorTag.notifyLuxometer();
+            },
+            function(callback) {
+              console.log('disableLuxometer');
+              sensorTag.disableLuxometer(callback);
+            },
+            function() {
+              callback();
+            }
+          ]);
+        } else {
+          callback();
+        }
+      },
       function(callback) {
         console.log('readSimpleRead');
         sensorTag.on('simpleKeyChange', function(left, right) {
