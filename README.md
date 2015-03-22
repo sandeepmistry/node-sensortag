@@ -23,10 +23,10 @@ var SensorTag = require('sensortag');
 SensorTag.discover(callback(sensorTag));
 ```
 
-### Connect and Setup
+### Connect and Set Up
 
 ```javascript
-sensorTag.connectAndSetup(callback(error));
+sensorTag.connectAndSetUp(callback(error));
 ```
 
 ### Disconnect
