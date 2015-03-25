@@ -250,6 +250,34 @@ sensorTag.unnotifyGyroscope(callback(error));
 sensorTag.on('gyroscopeChange', callback(x, y, z));
 ```
 
+### Luxometer (CC2650 only)
+
+#### Enable/disable/configure
+
+```javascript
+sensorTag.enableLuxometer(callback(error));
+
+sensorTag.disableLuxometer(callback(error));
+
+sensorTag.setLuxometerPeriod(period, callback(error));
+```
+
+#### Read
+
+```javascript
+sensorTag.readLuxometer(callback(error, lux));
+```
+
+#### Notify/Unnotify
+
+```javascript
+sensorTag.notifyLuxometer(callback(error));
+
+sensorTag.unnotifyLuxometer(callback(error));
+
+sensorTag.on('luxometerChange', callback(lux));
+```
+
 ### Simple Key
 
 #### Notify/Unnotify
