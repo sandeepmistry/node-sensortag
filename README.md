@@ -3,7 +3,7 @@
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sandeepmistry/node-sensortag?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
-node.js lib for the TI SensorTag
+node.js lib for the [TI SensorTag](http://www.ti.com/tool/cc2541dk-sensor) and [TI CC2650 SensorTag](http://www.ti.com/tool/cc2650stk)
 
 ## Install
 
@@ -23,6 +23,15 @@ var SensorTag = require('sensortag');
 SensorTag.discover(callback(sensorTag));
 ```
 
+#### Properties:
+
+```javascript
+sensorTag = {
+  uuid: "<peripheral uuid>",
+  type: "cc2540" | "cc2650"
+}
+```
+
 ### Connect and Set Up
 
 ```javascript
@@ -38,7 +47,7 @@ sensorTag.disconnect(callback);
 ### Device Info
 
 ```javascript
-sensorTag.readDeviceName(callback(error, deviceName)); // does not work on OS X 10.10
+sensorTag.readDeviceName(callback(error, deviceName));
 
 sensorTag.readSystemId(callback(error, systemId));
 
@@ -117,6 +126,8 @@ sensorTag.on('accelerometerChange', callback(x, y, z));
 sensorTag.enableHumidity(callback(error));
 
 sensorTag.disableHumidity(callback(error));
+
+sensorTag.setHumidityPeriod(period, callback(error));
 ```
 
 #### Read
@@ -171,6 +182,8 @@ sensorTag.on('magnetometerChange', callback(x, y, z));
 sensorTag.enableBarometricPressure(callback(error));
 
 sensorTag.disableBarometricPressure(callback(error));
+
+sensorTag.setBarometricPressurePeriod(period, callback(error)); // period 100 - 2550 ms
 ```
 
 #### Read
