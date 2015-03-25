@@ -19,8 +19,28 @@ var SensorTag = require('sensortag');
 
 ### Discover
 
+#### One
+
 ```javascript
 SensorTag.discover(callback(sensorTag));
+```
+
+#### All
+
+```javascript
+function onDiscover(sensorTag) {
+  // ...
+}
+
+SensorTag.discoverAll(onDiscover);
+
+SensorTag.stopDiscoverAll(onDiscover);
+```
+
+#### By uuid
+
+```javascript
+SensorTag.discoverByUuid(uuid, callback(sensorTag));
 ```
 
 #### Properties:
