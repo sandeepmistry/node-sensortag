@@ -1,0 +1,12 @@
+## Version 1.0
+
+ * use noble-device instead of noble directly
+ * add error parameters to callbacks
+ * support for SensorTag 2.0 / CC2650
+ * remove ```enableGyroscopeAxis``` API
+ * new ```discoverAll```, ```stopDiscoverAll```, and ```discoverByUuid``` API's
+
+## Older
+
+ * Changes not recorded
+
