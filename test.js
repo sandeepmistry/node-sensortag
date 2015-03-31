@@ -370,12 +370,12 @@ SensorTag.discover(function(sensorTag) {
         }
       },
       function(callback) {
-        console.log('readSimpleRead');
+        console.log('readSimpleRead - waiting for button press ...');
         sensorTag.on('simpleKeyChange', function(left, right) {
           console.log('left: ' + left);
           console.log('right: ' + right);
 
-          if (left && right) {
+          if (left || right) {
             sensorTag.notifySimpleKey(callback);
           }
         });
