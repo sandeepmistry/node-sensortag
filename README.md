@@ -11,6 +11,10 @@ node.js lib for the [TI SensorTag](http://www.ti.com/tool/cc2541dk-sensor) and [
 npm install sensortag
 ```
 
+## Examples
+
+See [test.js](test.js) or [sensorTag folder in Tom Igoe's BluetoothLE-Examples repo ](https://github.com/tigoe/BluetoothLE-Examples/tree/master/sensorTag)
+
 ## Usage
 
 ```javascript
