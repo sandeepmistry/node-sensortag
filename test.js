@@ -235,13 +235,13 @@ SensorTag.discover(function(sensorTag) {
         if (USE_READ) {
           console.log('readBarometricPressure');
           sensorTag.readBarometricPressure(function(error, pressure) {
-            console.log('\tpressure = %d mBar', (pressure / 100).toFixed(1));
+            console.log('\tpressure = %d mBar', pressure.toFixed(1));
 
             callback();
           });
         } else {
           sensorTag.on('barometricPressureChange', function(pressure) {
-            console.log('\tpressure = %d mBar', (pressure / 100).toFixed(1));
+            console.log('\tpressure = %d mBar', pressure.toFixed(1));
           });
 
           console.log('setBarometricPressurePeriod');
