@@ -1,3 +1,7 @@
+## Version 1.0.1
+
+ * barometric sensor reading and luxometer conversion formula corrections ([@martin-doyle](https://github.com/martin-doyle))
+
 ## Version 1.0
 
  * use noble-device instead of noble directly
