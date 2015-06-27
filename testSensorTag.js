@@ -16,7 +16,6 @@ function onDiscover(sensorTag) {
 
   sensorTag.on('disconnect', function() {
   	console.log('Disconnected.');
-  	console.log(timeoutCleared);
 
    	if (timeoutCleared) {
     	scanTimed();
@@ -40,8 +39,7 @@ function scanTimed() {
 	timeoutCleared = false;
 	SensorTag.discoverAll(onDiscover);
 	timeoutID = setTimeout(function(){
-		console.log('Stop discovering');
-		SensorTag.stopDiscoverAll(onDiscover);
+		stopTimed();
 	}, timeoutVar);
 }
 
