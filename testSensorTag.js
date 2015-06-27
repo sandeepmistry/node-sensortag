@@ -1,4 +1,3 @@
-var async = require('async');
 var SensorTag = require('sensortag');
 
 // Timeout Variables
