@@ -1,5 +1,4 @@
 'use strict';
-var async = require('async');
 var SensorTag = require('sensortag');
 
 // SensorTag UUIDs
