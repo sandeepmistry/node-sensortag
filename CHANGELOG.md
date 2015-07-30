@@ -1,3 +1,7 @@
+## Version 1.0.2
+
+ * Correct code for reading barometric pressure with firmware 0.89 or older ([@bChiquet](https://github.com/bChiquet))
+
 ## Version 1.0.1
 
  * barometric sensor reading and luxometer conversion formula corrections ([@martin-doyle](https://github.com/martin-doyle))
