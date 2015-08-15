@@ -6,6 +6,8 @@ function onDiscover(sensorTag) {
 
 // SensorTag.discoverAll(onDiscover);
 
-SensorTag.discoverByUuid('20d1a47d7bab4a89aa2b0d3cbb8372f5', onDiscover);
+// SensorTag.discoverByUuid('20d1a47d7bab4a89aa2b0d3cbb8372f5', onDiscover);
 
-// SensorTag.discover(onDiscover);
+// SensorTag.discoverByAddress('90:59:af:0a:ab:34', onDiscover);
+
+SensorTag.discover(onDiscover);
