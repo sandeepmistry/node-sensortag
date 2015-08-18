@@ -41,17 +41,23 @@ SensorTag.discoverAll(onDiscover);
 SensorTag.stopDiscoverAll(onDiscover);
 ```
 
-#### By uuid
+#### By id
 
 ```javascript
-SensorTag.discoverByUuid(uuid, callback(sensorTag));
+SensorTag.discoverById(id, callback(sensorTag));
+```
+
+#### By address
+
+```javascript
+SensorTag.discoverByAddress(address, callback(sensorTag));
 ```
 
 #### Properties:
 
 ```javascript
 sensorTag = {
-  uuid: "<peripheral uuid>",
+  id: "<peripheral id>",
   type: "cc2540" | "cc2650"
 }
 ```
