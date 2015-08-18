@@ -1,3 +1,9 @@
+## Version 1.1
+
+ * use noble-device ^1.1.0
+ * use id instead of uuid
+ * new ```discoverByAddress``` and ```discoverById``` API's - ```discoverByUuid``` is deprecated now
+
 ## Version 1.0.2
 
  * Correct code for reading barometric pressure with firmware 0.89 or older ([@bChiquet](https://github.com/bChiquet))
