@@ -1,3 +1,7 @@
+# Version 1.1.1
+
+ * add missing ```discoverById``` API
+
 ## Version 1.1
 
  * use noble-device ^1.1.0
