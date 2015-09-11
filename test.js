@@ -326,6 +326,24 @@ SensorTag.discover(function(sensorTag) {
         } else if (sensorTag.type === 'cc2650') {
           async.series([
             function(callback) {
+              console.log('readIoData');
+              sensorTag.readIoData(function(error, value) {
+                console.log('\tdata = ' + value);
+
+                 console.log('writeIoData');
+                sensorTag.writeIoData(value, callback);
+              });
+            },
+            function(callback) {
+              console.log('readIoConfig');
+              sensorTag.readIoConfig(function(error, value) {
+                console.log('\tconfig = ' + value);
+
+                 console.log('writeIoConfig');
+                sensorTag.writeIoConfig(value, callback);
+              });
+            },
+            function(callback) {
               console.log('enableLuxometer');
               sensorTag.enableLuxometer(callback);
             },
