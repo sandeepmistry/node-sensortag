@@ -260,6 +260,22 @@ sensorTag.unnotifyGyroscope(callback(error));
 sensorTag.on('gyroscopeChange', callback(x, y, z));
 ```
 
+### IO (CC2650 only)
+
+#### Data read/write
+
+```javascript
+sensorTag.readIoData(callback(error, value));
+sensorTag.writeIoData(value, callback(error));
+```
+
+#### Config read/write
+
+```javascript
+sensorTag.readIoConfig(callback(error, value));
+sensorTag.writeIoConfig(value, callback(error));
+```
+
 ### Luxometer (CC2650 only)
 
 #### Enable/disable/configure
