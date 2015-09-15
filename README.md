@@ -312,8 +312,6 @@ sensorTag.on('luxometerChange', callback(lux));
 sensorTag.notifySimpleKey(callback(error));
 
 sensorTag.unnotifySimpleKey(callback(error));
-
-sensorTag.on('simpleKeyChange', callback(left, right));
 ```
 
 CC2540:
