@@ -1,3 +1,8 @@
+# Version 1.2.0
+
+ * new CC2650 IO API's: ``readIoData``, ``writeIoData``, ``readIoConfig``, and ``writeIoConfig``
+ * add ``reedRelay`` arg to ``simpleKeyChange`` event for CC2650
+
 # Version 1.1.1
 
  * add missing ```discoverById``` API
