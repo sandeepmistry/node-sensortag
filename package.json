@@ -1,7 +1,7 @@
 {
   "name": "sensortag",
   "version": "1.1.1",
-  "description": "node.js lib for the TI SensorTag",
+  "description": "Node.js lib for the TI SensorTag",
   "main": "index.js",
   "scripts": {
     "test": "jshint lib/*.js"
