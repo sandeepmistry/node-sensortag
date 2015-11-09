@@ -5,6 +5,11 @@
 
 Node.js lib for the [TI SensorTag](http://www.ti.com/tool/cc2541dk-sensor) and [TI CC2650 SensorTag](http://www.ti.com/tool/cc2650stk)
 
+## Prerequisites
+
+ * [node-gyp install guide](https://github.com/nodejs/node-gyp#installation)
+ * [noble prerequisites](https://github.com/sandeepmistry/noble#prerequisites)
+
 ## Install
 
 ```sh
