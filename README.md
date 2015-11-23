@@ -134,7 +134,9 @@ sensorTag.enableAccelerometer(callback(error));
 
 sensorTag.disableAccelerometer(callback(error));
 
-sensorTag.setAccelerometerPeriod(period, callback(error)); // period 1 - 2550 ms, default period is 2000 ms
+// CC2540: period 1 - 2550 ms, default period is 2000 ms
+// CC2650: period 100 - 2550 ms, default period is 1000 ms
+sensorTag.setAccelerometerPeriod(period, callback(error));
 ```
 
 #### Read
@@ -190,7 +192,9 @@ sensorTag.enableMagnetometer(callback(error));
 
 sensorTag.disableMagnetometer(callback(error));
 
-sensorTag.setMagnetometerPeriod(period, callback(error)); // period 1 - 2550 ms, default period is 2000 ms
+// CC2540: period 1 - 2550 ms, default period is 2000 ms
+// CC2650: period 100 - 2550 ms, default period is 1000 ms
+sensorTag.setMagnetometerPeriod(period, callback(error));
 ```
 
 #### Read
@@ -246,7 +250,8 @@ sensorTag.enableGyroscope(callback(error));
 
 sensorTag.disableGyroscope(callback(error));
 
-sensorTag.setGyroscopePeriod(period, callback(error)); // period 100 - 2550 ms, default period is 1000 ms
+// period 100 - 2550 ms, default period is 1000 ms
+sensorTag.setGyroscopePeriod(period, callback(error));
 ```
 
 #### Read
