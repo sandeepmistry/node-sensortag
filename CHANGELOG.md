@@ -1,3 +1,9 @@
+# Version 1.2.1
+
+ * only set specific MPU9250 sensor bits with enabling/disabling
+ * use 8G accelerometer mode and conversion formula (#62)
+ * update MPU9250 formulas to match TI Android source code
+
 # Version 1.2.0
 
  * new CC2650 IO API's: ``readIoData``, ``writeIoData``, ``readIoConfig``, and ``writeIoConfig``
