@@ -1,3 +1,7 @@
+# Version 1.2.2
+
+ * revert "only set specific MPU9250 sensor bits with enabling/disabling"
+
 # Version 1.2.1
 
  * only set specific MPU9250 sensor bits with enabling/disabling
