@@ -79,6 +79,14 @@ sensorTag.connectAndSetUp(callback(error));
 sensorTag.disconnect(callback);
 ```
 
+### Disconnect event
+
+Add listener for when SensorTag is disconnected:
+
+```javascript
+sensorTag.once('disconnect', callback);
+```
+
 ### Device Info
 
 ```javascript
