@@ -335,5 +335,3 @@ CC2650:
 ```javascript
 sensorTag.on('simpleKeyChange', callback(left, right, reedRelay));
 ```
-
-[![Analytics](https://ga-beacon.appspot.com/UA-56089547-1/sandeepmistry/node-sensortag?pixel)](https://github.com/igrigorik/ga-beacon)
