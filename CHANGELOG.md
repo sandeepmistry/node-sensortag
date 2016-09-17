@@ -1,3 +1,8 @@
+# Version 1.2.3
+
+ * CC2650 now also treats advertised service UUID ```aa80``` as device ([@julianoAffonso](https://github.com/julianoAffonso))
+ * use noble-device ^1.4.1
+
 # Version 1.2.2
 
  * revert "only set specific MPU9250 sensor bits with enabling/disabling"
