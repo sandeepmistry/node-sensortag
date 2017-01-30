@@ -322,6 +322,14 @@ sensorTag.unnotifyLuxometer(callback(error));
 sensorTag.on('luxometerChange', callback(lux));
 ```
 
+### Battery Level (CC2650 only)
+
+#### Read
+
+```javascript
+sensorTag.readBatteryLevel(callback(error, batteryLevel));
+```
+
 ### Simple Key
 
 #### Notify/Unnotify
