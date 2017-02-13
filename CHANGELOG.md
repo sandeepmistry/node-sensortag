@@ -1,3 +1,7 @@
+# Version 1.3.0
+
+ * Add support to CC2650 battery service ([@micahnyc](https://github.com/micahnyc))
+
 # Version 1.2.3
 
  * CC2650 now also treats advertised service UUID ```aa80``` as device ([@julianoAffonso](https://github.com/julianoAffonso))
