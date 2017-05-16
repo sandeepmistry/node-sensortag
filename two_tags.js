@@ -35,6 +35,7 @@ setTimeout(function(){
 			
 			async.series([ 
 			
+			    // Send audio notifications in order to enable audio transmission
 				function(callback) {
 					console.log('TAG:#%s\tnotifyAudioConfig',tag.uuid);
 					tag.notifyAudioConfig(callback);
@@ -51,17 +52,17 @@ setTimeout(function(){
 					setTimeout(callback, 2000);
                 },
 				
-				function(callback) {
-				  tag.setAudioFlag(callback);
-				},
-				
+				// Fetch audio
 				function(callback) {
 					console.log('readAudio');
 					tag.on('AudioChange', function(audio) {
-						if(!audio) callback();
+					  if(!audio) {
+					    callback();
+					  }					 
 					});
 				},
 				
+				// Send audio de-notifications in order to disable audio transmission
 				function(callback) {
 				  console.log('TAG:#%s\tunnotifyAudioStream',tag.uuid);
 				  tag.unnotifyAudioStream(callback);
@@ -80,6 +81,7 @@ setTimeout(function(){
 				  setTimeout(callback, 2000);
 				},
 				
+				// Disconnect
 				function(callback) {
 					console.log('disconnect', tag.uuid);
 					tag.disconnect(callback);
