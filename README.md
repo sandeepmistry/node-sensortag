@@ -10,6 +10,8 @@ Node.js lib for the [TI SensorTag](http://www.ti.com/tool/cc2541dk-sensor) and [
  * [node-gyp install guide](https://github.com/nodejs/node-gyp#installation)
  * [noble prerequisites](https://github.com/sandeepmistry/noble#prerequisites)
 
+**NOTE**: Certain API's may not be funcational if your SensorTag is running an older firmware version. You can use TI's iOS or Android apps to update the firmare.
+
 ## Install
 
 ```sh
