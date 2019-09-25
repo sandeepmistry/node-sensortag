@@ -4,7 +4,7 @@ var async = require('async');
 
 var SensorTag = require('./index');
 
-var USE_READ = true;
+var USE_READ = 1;
 
 SensorTag.discover(function(sensorTag) {
   console.log('discovered: ' + sensorTag);
